@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        body {
+            font-family: 'Helvetica', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            background-color: #fdfdfd;
+        }
+        .container {
+            border: 1px solid #ccc;
+            height: 100%;
+            position: relative;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .client-info {
+            font-size: 14px;
+        }
+        .client-info div { margin-bottom: 2px; }
+        .grand-total-box {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .grand-total-box .label { font-size: 10px; text-transform: uppercase; }
+        .grand-total-box .value { font-size: 18px; font-weight: bold; }
+
+        /* Grid Layout */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            height: 500px;
+            gap: 10px;
+            position: relative;
+        }
+        .divider-h {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            border-top: 1px solid #ddd;
+        }
+        .divider-v {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            border-left: 1px solid #ddd;
+        }
+
+        /* Section Labels */
+        .section-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+        }
+        .label-retirement-l { top: 10px; left: 10px; }
+        .label-retirement-r { top: 10px; right: 10px; }
+        .label-non-retirement { bottom: 10px; left: 10px; }
+
+        /* Bubbles */
+        .bubble {
+            border: 1px solid #333;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            background: white;
+            margin: 5px;
+        }
+        .bubble-sm { width: 100px; height: 100px; font-size: 10px; }
+        .bubble-md { width: 140px; height: 140px; font-size: 11px; }
+        .bubble-lg { width: 180px; height: 180px; font-size: 13px; }
+        
+        .bubble-green { background-color: #8BC34A; color: white; border: none; }
+        
+        .bubble .acc-name { font-weight: bold; margin-bottom: 4px; }
+        .bubble .acc-val { font-size: 14px; font-weight: bold; }
+        .bubble .acc-date { font-size: 9px; color: #666; margin-top: 4px; }
+        .bubble .acc-cash { 
+            margin-top: 5px; 
+            border-top: 1px solid #eee; 
+            padding-top: 3px;
+            font-size: 10px;
+        }
+
+        /* Summary Boxes */
+        .summary-box {
+            background-color: #666;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        /* Positions */
+        .retirement-section {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+        }
+        .non-retirement-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .center-trust {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .liabilities-box {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            width: 200px;
+            font-size: 10px;
+        }
+        .liabilities-box h4 { margin: 0 0 5px 0; border-bottom: 1px solid #ccc; }
+        .liab-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="client-info">
+                <div><strong>NAME:</strong> {{ client.full_name }}</div>
+                <div><strong>DATE:</strong> {{ report.report_date.strftime('%B %d, %Y') }}</div>
+            </div>
+            <div class="grand-total-box">
+                <div class="label">Grand Total</div>
+                <div class="value">${{ "{:,.2f}".format(totals.net_worth) }}</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="divider-h"></div>
+            <div class="divider-v"></div>
+
+            <!-- Top Left: Client 1 Retirement -->
+            <div class="retirement-section">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="summary-box">Client 1 Retirement Only<br><strong>${{ "{:,.2f}".format(totals.retirement_client1) }}</strong></div>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                        {% for account in client.accounts if account.account_type == 'retirement' and account.owner == 'client1' %}
+                        {% set b = balances.get(account.id) %}
+                        <div class="bubble bubble-md">
+                            <div class="acc-name">{{ account.account_name }}</div>
+                            <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
+                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                            {% if b and b.cash_balance %}
+                            <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Profile Bubble -->
+                <div class="bubble bubble-lg bubble-green">
+                    <div style="font-size: 16px;">Client 1</div>
+                    <div>Age: {{ client.age if client.age else 'N/A' }}</div>
+                    <div>DOB: {{ client.dob.strftime('%m/%d/%Y') if client.dob else '' }}</div>
+                    <div>SSN: {{ client.ssn_last_four }}</div>
+                </div>
+            </div>
+
+            <!-- Top Right: Client 2 Retirement -->
+            <div class="retirement-section">
+                <div class="bubble bubble-lg bubble-green">
+                    <div style="font-size: 16px;">Client 2</div>
+                    <div>Age: N/A</div>
+                    <div>DOB: N/A</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="summary-box">Client 2 Retirement Only<br><strong>${{ "{:,.2f}".format(totals.retirement_client2) }}</strong></div>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                        {% for account in client.accounts if account.account_type == 'retirement' and account.owner == 'client2' %}
+                        {% set b = balances.get(account.id) %}
+                        <div class="bubble bubble-md">
+                            <div class="acc-name">{{ account.account_name }}</div>
+                            <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
+                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom: Non-Retirement -->
+            <div class="non-retirement-section" style="grid-column: span 2;">
+                {% for account in client.accounts if account.account_type == 'non-retirement' %}
+                {% set b = balances.get(account.id) %}
+                <div class="bubble bubble-md">
+                    <div class="acc-name">{{ account.account_name }}</div>
+                    <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
+                    <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                </div>
+                {% endfor %}
+                
+                <div style="position: absolute; bottom: 0; width: 100%; text-align: center;">
+                    <div class="summary-box" style="display: inline-block; background: #333;">Non-Retirement Total: <strong>${{ "{:,.2f}".format(totals.non_retirement) }}</strong></div>
+                </div>
+            </div>
+
+            <!-- Center: Trust -->
+            <div class="center-trust">
+                {% for account in client.accounts if account.account_type == 'trust' %}
+                {% set b = balances.get(account.id) %}
+                <div class="bubble bubble-lg">
+                    <div class="acc-name">{{ account.account_name }}</div>
+                    <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
+                    <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Liabilities -->
+            <div class="liabilities-box">
+                <h4>Liabilities</h4>
+                {% for account in client.accounts if account.account_type == 'liability' %}
+                {% set b = balances.get(account.id) %}
+                <div class="liab-row">
+                    <span>{{ account.account_name }}</span>
+                    <span>${{ "{:,.2f}".format(b.balance if b else 0) }}</span>
+                </div>
+                {% endfor %}
+                <div class="liab-row" style="border-top: 1px solid #ccc; margin-top: 5px; font-weight: bold;">
+                    <span>Total</span>
+                    <span>${{ "{:,.2f}".format(totals.liabilities) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

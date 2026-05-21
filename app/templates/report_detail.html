@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{{ url_for('main.index') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
+            <li><svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></li>
+            <li><a href="{{ url_for('main.client_detail', client_id=client.id) }}" class="text-gray-500 hover:text-gray-700">{{ client.full_name }}</a></li>
+            <li><svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></li>
+            <li class="text-gray-900 font-medium">Report Details</li>
+        </ol>
+    </nav>
+
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Quarterly Analysis</h1>
+            <p class="text-gray-600 mt-2">Balances as of {{ report.report_date.strftime('%B %d, %Y') }}</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{{ url_for('main.generate_sacs', report_id=report.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                Download SACS PDF
+            </a>
+            <a href="{{ url_for('main.generate_tcc', report_id=report.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                Download TCC PDF
+            </a>
+            <a href="{{ url_for('main.export_canva', report_id=report.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Export to Canva
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- SACS Summary Card -->
+        <div class="bg-white shadow rounded-lg p-6 border-t-4 border-green-500">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">SACS Summary (Cashflow)</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Total Monthly Inflow</span>
+                    <span class="text-lg font-semibold text-green-600">${{ "{:,.2f}".format(totals.inflow) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Total Monthly Outflow</span>
+                    <span class="text-lg font-semibold text-red-600">${{ "{:,.2f}".format(totals.outflow) }}</span>
+                </div>
+                <div class="pt-4 border-t flex justify-between items-center">
+                    <span class="text-gray-900 font-bold">Excess to Private Reserve</span>
+                    <span class="text-2xl font-bold text-blue-600">${{ "{:,.2f}".format(totals.excess) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TCC Summary Card -->
+        <div class="bg-white shadow rounded-lg p-6 border-t-4 border-blue-500">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">TCC Summary (Net Worth)</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Retirement (Client 1)</span>
+                    <span class="text-lg font-semibold text-gray-900">${{ "{:,.2f}".format(totals.retirement_client1) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Retirement (Client 2)</span>
+                    <span class="text-lg font-semibold text-gray-900">${{ "{:,.2f}".format(totals.retirement_client2) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Non-Retirement Total</span>
+                    <span class="text-lg font-semibold text-gray-900">${{ "{:,.2f}".format(totals.non_retirement) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Trust & Property</span>
+                    <span class="text-lg font-semibold text-gray-900">${{ "{:,.2f}".format(totals.trust) }}</span>
+                </div>
+                <div class="pt-4 border-t flex justify-between items-center">
+                    <span class="text-gray-900 font-bold">Grand Total Net Worth</span>
+                    <span class="text-2xl font-bold text-primary">${{ "{:,.2f}".format(totals.net_worth) }}</span>
+                </div>
+                <div class="mt-4 p-3 bg-gray-50 rounded text-sm flex justify-between items-center">
+                    <span class="text-gray-500">Liabilities (Separated)</span>
+                    <span class="text-red-500 font-medium">${{ "{:,.2f}".format(totals.liabilities) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Balances Table -->
+    <div class="mt-12 bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b">
+            <h3 class="text-lg font-medium text-gray-900">Recorded Balances</h3>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Balance</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for balance in report.balances %}
+                <tr>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ balance.account.account_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 capitalize">{{ balance.account.account_type }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 capitalize">{{ balance.account.owner }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-gray-900 font-mono">${{ "{:,.2f}".format(balance.balance) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
