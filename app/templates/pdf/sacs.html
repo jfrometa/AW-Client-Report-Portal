@@ -190,8 +190,8 @@
     /* SVG Arrow Containers */
     .arrow-green-container {
         position: absolute;
-        left: 23mm;
-        top: 62.1mm; /* Precisely positioned to put the tip 6px from the circular border */
+        left: 27mm;
+        top: 58.1mm; /* Precisely positioned to put the tip 6px from the circular border */
         width: 13mm;
         height: 13mm;
         transform-origin: bottom center; /* Locks the tip in place during rotation */
@@ -235,7 +235,7 @@
     .l-arrow-container {
         position: absolute;
         left: 41mm; 
-        top: 130mm;
+        top: 131mm;
         width: 27mm; 
         height: 32mm;
         z-index: 2;
@@ -244,7 +244,7 @@
     .l-arrow-text {
         position: absolute;
         left: 40mm;
-        top: 166mm;
+        top: 178mm;
         font-size: 8.5pt;
         color: #4a90e2;
         font-weight: bold;
@@ -544,9 +544,9 @@
         <div class="expense-line-left"></div>
 
         <div class="l-arrow-container">
-            <svg width="100%" height="100%" viewBox="0 0 27 38" preserveAspectRatio="none">
-                <path d="M 1,1 L 9,1 L 9,26 L 18,26 L 18,21 L 26,29 L 18,37 L 18,32 L 1,32 Z" fill="#fff" stroke="#4a90e2" stroke-width="1.5" stroke-linejoin="round"/>
-            </svg>
+        <svg width="100%" height="100%" viewBox="0 0 27 46" preserveAspectRatio="none">
+            <path d="M 1,1 L 9,1 L 9,34 L 18,34 L 18,29 L 26,37 L 18,45 L 18,40 L 1,40 Z" fill="#fff" stroke="#4a90e2" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
         </div>
         <div class="l-arrow-text">${{ "{:,.0f}".format(totals.excess|default(12000)) }}/mo*</div>
 
