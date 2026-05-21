@@ -12,6 +12,7 @@ class Household(db.Model):
     expense_budget = db.Column(db.Float, default=0.0)
     deductibles_total = db.Column(db.Float, default=0.0)
     private_reserve_target_override = db.Column(db.Float)
+    active = db.Column(db.Boolean, default=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     individuals = db.relationship(

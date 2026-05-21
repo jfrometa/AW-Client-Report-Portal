@@ -50,6 +50,14 @@ def index():
     households = Household.query.order_by(Household.created_at.desc()).all()
     return render_template('index.html', households=households)
 
+@main_bp.route('/household/<int:household_id>/toggle', methods=['POST'])
+def toggle_household_active(household_id):
+    household = Household.query.get_or_404(household_id)
+    household.active = not household.active
+    db.session.commit()
+    flash("Household status updated!", "success")
+    return redirect(url_for('main.index'))
+
 @main_bp.route('/household/add', methods=['GET', 'POST'])
 def add_household():
     if request.method == 'POST':
@@ -59,6 +67,7 @@ def add_household():
         deductibles_total = parse_float(request.form.get('deductibles_total'), 0)
         target_override_raw = (request.form.get("private_reserve_target_override") or "").strip()
         private_reserve_target_override = parse_float(target_override_raw, 0) if target_override_raw else None
+        active = request.form.get("active") == "on"
 
         client1_first = request.form.get("client1_first_name") or ""
         client1_last = request.form.get("client1_last_name") or ""
@@ -76,6 +85,7 @@ def add_household():
             expense_budget=expense_budget,
             deductibles_total=deductibles_total,
             private_reserve_target_override=private_reserve_target_override,
+            active=active,
         )
         db.session.add(household)
         db.session.flush()
@@ -168,6 +178,7 @@ def edit_household(household_id):
         household.private_reserve_target_override = (
             parse_float(target_override_raw, 0) if target_override_raw else None
         )
+        household.active = request.form.get("active") == "on"
 
         for designation in ["client1", "client2"]:
             ind = next((i for i in individuals if i.designation == designation), None)

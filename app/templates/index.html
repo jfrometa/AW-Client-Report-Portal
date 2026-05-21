@@ -12,23 +12,25 @@
     <ul class="divide-y divide-gray-200">
         {% for household in households %}
         <li>
-            <a href="{{ url_for('main.household_detail', household_id=household.id) }}" class="block hover:bg-gray-50 transition">
+            <div class="block hover:bg-gray-50 transition">
                 <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
-                    <div class="flex flex-col">
-                        <p class="text-lg font-semibold text-primary truncate">{{ household.display_name }}</p>
-                        <p class="text-sm text-gray-500">
-                            {% set people = household.individuals | sort(attribute='designation') %}
-                            {% if people|length == 0 %}
-                                No individuals added
-                            {% elif people|length == 1 %}
-                                {{ people[0].full_name }}
-                            {% else %}
-                                {{ people[0].full_name }} &amp; {{ people[1].full_name }}
-                            {% endif %}
-                        </p>
-                    </div>
+                    <a href="{{ url_for('main.household_detail', household_id=household.id) }}" class="flex-1">
+                        <div class="flex flex-col">
+                            <p class="text-lg font-semibold text-primary truncate">{{ household.display_name }}</p>
+                            <p class="text-sm text-gray-500">
+                                {% set people = household.individuals | sort(attribute='designation') %}
+                                {% if people|length == 0 %}
+                                    No individuals added
+                                {% elif people|length == 1 %}
+                                    {{ people[0].full_name }}
+                                {% else %}
+                                    {{ people[0].full_name }} &amp; {{ people[1].full_name }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </a>
                     <div class="flex items-center space-x-4">
-                        <div class="text-right mr-8">
+                        <div class="text-right mr-4">
                             <p class="text-xs text-gray-400 uppercase tracking-wider">Last Report</p>
                             <p class="text-sm text-gray-700">
                                 {% if household.reports %}
@@ -38,13 +40,19 @@
                                 {% endif %}
                             </p>
                         </div>
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Active</span>
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                        </svg>
+                        <form action="{{ url_for('main.toggle_household_active', household_id=household.id) }}" method="POST">
+                            <button type="submit" class="px-3 py-1 text-xs font-medium rounded {% if household.active %}bg-green-100 text-green-800 hover:bg-green-200{% else %}bg-gray-200 text-gray-600 hover:bg-gray-300{% endif %}">
+                                {{ 'Active' if household.active else 'Inactive' }}
+                            </button>
+                        </form>
+                        <a href="{{ url_for('main.household_detail', household_id=household.id) }}" class="text-gray-400 hover:text-gray-600">
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
-            </a>
+            </div>
         </li>
         {% else %}
         <li class="px-4 py-12 text-center">

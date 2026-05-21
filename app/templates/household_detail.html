@@ -12,9 +12,14 @@
 
     <div class="lg:flex lg:items-center lg:justify-between mb-8">
         <div class="flex-1 min-w-0">
-            <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
-                {{ household.display_name }}
-            </h2>
+            <div class="flex items-center space-x-4">
+                <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
+                    {{ household.display_name }}
+                </h2>
+                <span class="px-3 py-1 text-xs font-medium rounded {% if household.active %}bg-green-100 text-green-800{% else %}bg-gray-200 text-gray-600{% endif %}">
+                    {{ 'Active' if household.active else 'Inactive' }}
+                </span>
+            </div>
             <p class="mt-2 text-sm text-gray-500">
                 Household record with {% if individuals|length == 1 %}1 individual{% else %}{{ individuals|length }} individuals{% endif %}.
             </p>
