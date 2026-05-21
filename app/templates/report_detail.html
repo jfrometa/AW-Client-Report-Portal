@@ -18,14 +18,11 @@
             <p class="text-gray-600 mt-2">Balances as of {{ report.report_date.strftime('%B %d, %Y') }}</p>
         </div>
         <div class="flex space-x-4">
-            <a href="{{ url_for('main.generate_sacs', report_id=report.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+            <a href="{{ url_for('main.generate_sacs', report_id=report.id) }}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
                 Download SACS PDF
             </a>
-            <a href="{{ url_for('main.generate_tcc', report_id=report.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+            <a href="{{ url_for('main.generate_tcc', report_id=report.id) }}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
                 Download TCC PDF
-            </a>
-            <a href="{{ url_for('main.export_canva', report_id=report.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Export to Canva
             </a>
         </div>
     </div>
