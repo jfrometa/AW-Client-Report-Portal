@@ -6,66 +6,98 @@
         @page { size: A4; margin: 10mm; }
         html, body { margin: 0; padding: 0; }
         body { font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif; color: #111; }
+
         .page { position: relative; height: 277mm; }
-        .titlebar { position: relative; height: 20mm; }
-        .money { position: absolute; left: 0; top: 1mm; font-size: 28pt; font-weight: 800; color: #1b7b3a; line-height: 1; }
-        .title { position: absolute; left: 0; right: 0; top: 1.5mm; text-align: center; font-weight: 700; font-size: 16pt; }
-        .subtitle { position: absolute; left: 0; right: 0; top: 10.5mm; text-align: center; font-weight: 700; font-size: 13pt; }
-        .money-stack { position: absolute; right: 0; top: 0; width: 26mm; height: 18mm; }
 
-        .canvas { position: relative; height: 240mm; }
-        .bubble { position: absolute; width: 58mm; height: 58mm; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .bubble-inflow { left: 22mm; top: 33mm; background: #3bb54a; box-shadow: inset 0 -4mm 0 rgba(0,0,0,0.12); }
-        .bubble-outflow { right: 22mm; top: 33mm; background: #d84234; box-shadow: inset 0 -4mm 0 rgba(0,0,0,0.12); }
-        .bubble-reserve { left: 50%; transform: translateX(-50%); top: 106mm; background: #2f7dbd; box-shadow: inset 0 -4mm 0 rgba(0,0,0,0.12); }
-        .bubble-label { font-size: 15pt; font-weight: 900; letter-spacing: 0.8pt; color: #fff; margin-bottom: 4mm; }
-        .value-pill { background: #fff; color: #111; font-weight: 800; font-size: 16pt; padding: 1.6mm 6mm; border-radius: 2mm; min-width: 34mm; white-space: nowrap; font-variant-numeric: tabular-nums; }
-        .floor { position: absolute; bottom: 7mm; width: 46mm; left: 50%; transform: translateX(-50%); padding-top: 1.5mm; border-top: 0.5mm solid rgba(255,255,255,0.5); color: rgba(255,255,255,0.95); font-size: 9pt; font-weight: 700; }
+        .header { position: relative; height: 18mm; }
+        .header-dollar { position: absolute; left: 0; top: 0; font-size: 28pt; font-weight: 900; color: #1b7b3a; line-height: 1; }
+        .header-title { position: absolute; left: 0; right: 0; top: 1mm; text-align: center; font-weight: 800; font-size: 14pt; }
+        .header-client { position: absolute; left: 0; right: 0; top: 9mm; text-align: center; font-weight: 800; font-size: 12pt; }
 
-        .reserve-icon { margin-top: 5mm; width: 18mm; height: 18mm; }
+        .money-stack { position: absolute; right: 0; top: 0; width: 26mm; height: 16mm; }
+        .bill { position: absolute; width: 22mm; height: 12mm; border-radius: 2mm; border: 0.6mm solid #bdbdbd; background: #efefef; }
+        .bill.back { left: 0; top: 3mm; background: #d9d9d9; }
+        .bill.front { left: 4mm; top: 0; }
+        .bill.front::before { content: ""; position: absolute; left: 3mm; top: 3mm; width: 6mm; height: 1.2mm; background: #bdbdbd; }
+        .bill.front::after { content: ""; position: absolute; left: 5mm; top: 7mm; width: 6mm; height: 1.2mm; background: #bdbdbd; }
 
-        .label-right { position: absolute; right: 4mm; top: 42mm; font-size: 9pt; color: #666; font-weight: 700; }
-        .label-mid { position: absolute; left: 50%; transform: translateX(-50%); top: 78mm; font-size: 8.5pt; color: #666; font-weight: 700; }
+        .canvas { position: relative; height: 245mm; }
 
-        .month-caption { position: absolute; left: 50%; transform: translateX(-50%); top: 172mm; font-weight: 800; font-size: 11pt; letter-spacing: 0.7pt; color: #1f5a86; }
+        .legend { position: absolute; left: 0; top: 6mm; font-size: 8.5pt; font-weight: 800; color: #3bb54a; }
+        .legend .muted { opacity: 0.75; }
 
-        .legend { position: absolute; left: 4mm; top: 25mm; font-size: 8.5pt; font-weight: 700; color: #2c7a3f; }
-        .legend .muted { color: #2c7a3f; opacity: 0.75; }
+        .bubble { position: absolute; width: 60mm; height: 60mm; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 -4mm 0 rgba(0,0,0,0.12); }
+        .bubble.inflow { left: 20mm; top: 28mm; background: #3bb54a; }
+        .bubble.outflow { right: 20mm; top: 28mm; background: #d84234; }
+        .bubble.reserve { left: 50%; top: 102mm; margin-left: -30mm; background: #2f7dbd; }
+
+        .bubble-label { font-size: 15pt; font-weight: 900; letter-spacing: 0.7pt; color: #fff; margin-bottom: 4mm; }
+        .bubble-label.small-break { line-height: 1.05; }
+
+        .value-box { background: #fff; color: #111; font-weight: 900; font-size: 15pt; padding: 1.6mm 6mm; border-radius: 1.2mm; min-width: 34mm; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+        .floor { position: absolute; bottom: 7mm; width: 46mm; left: 50%; margin-left: -23mm; padding-top: 1.5mm; border-top: 0.5mm solid rgba(255,255,255,0.5); color: rgba(255,255,255,0.95); font-size: 9pt; font-weight: 800; }
+
+        .reserve-icon { width: 18mm; height: 18mm; border-radius: 50%; background: rgba(255,255,255,0.15); margin-top: 3mm; position: relative; }
+        .reserve-icon::before { content: ""; position: absolute; left: 50%; top: 50%; width: 10mm; height: 8mm; margin-left: -5mm; margin-top: -4mm; border-radius: 5mm 5mm 4mm 4mm; background: #f4a3b2; }
+        .reserve-icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4mm; height: 3mm; margin-left: -2mm; margin-top: -5mm; border-radius: 2mm; background: #ffd166; }
+
+        .green-arrow { position: absolute; left: 7mm; top: 46mm; width: 12mm; height: 10mm; background: #3bb54a; }
+        .green-arrow::before { content: ""; position: absolute; left: -7mm; top: 0; width: 0; height: 0; border-top: 5mm solid transparent; border-bottom: 5mm solid transparent; border-right: 7mm solid #3bb54a; }
+        .green-arrow::after { content: ""; position: absolute; right: -7mm; top: 0; width: 0; height: 0; border-top: 5mm solid transparent; border-bottom: 5mm solid transparent; border-left: 7mm solid #3bb54a; }
+
+        .flow-arrow { position: absolute; left: 82mm; top: 52mm; width: 48mm; height: 12mm; border: 0.7mm solid #d84234; border-radius: 2mm; background: #fff; }
+        .flow-arrow::after { content: ""; position: absolute; right: -8mm; top: 50%; margin-top: -6mm; width: 0; height: 0; border-top: 6mm solid transparent; border-bottom: 6mm solid transparent; border-left: 8mm solid #d84234; }
+        .flow-arrow-text { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); font-size: 8pt; font-weight: 900; color: #d84234; text-align: center; }
+
+        .red-x { position: absolute; left: 125mm; top: 47mm; width: 9mm; height: 9mm; }
+        .red-x::before, .red-x::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10mm; height: 1.2mm; background: #d84234; margin-left: -5mm; margin-top: -0.6mm; }
+        .red-x::before { transform: rotate(45deg); }
+        .red-x::after { transform: rotate(-45deg); }
+
+        .assumed { position: absolute; left: 50%; top: 66mm; margin-left: -35mm; width: 70mm; font-size: 8pt; color: #777; font-weight: 700; text-align: center; }
+
+        .monthly-expenses { position: absolute; right: 0; top: 42mm; width: 34mm; font-size: 8pt; color: #777; font-weight: 800; text-align: left; }
+        .bracket { position: absolute; right: 18mm; top: 52mm; width: 12mm; height: 26mm; border-left: 0.7mm solid #555; border-top: 0.7mm solid #555; border-bottom: 0.7mm solid #555; }
+
+        .down-arrow { position: absolute; left: 36mm; top: 92mm; width: 16mm; height: 14mm; border: 0.7mm solid #5c94c8; background: rgba(92,148,200,0.12); }
+        .down-arrow::after { content: ""; position: absolute; left: 50%; bottom: -8mm; margin-left: -6mm; width: 0; height: 0; border-left: 6mm solid transparent; border-right: 6mm solid transparent; border-top: 8mm solid #5c94c8; }
+        .excess-label { position: absolute; left: 22mm; top: 117mm; font-size: 8pt; font-weight: 900; color: #5c94c8; }
+
+        .monthly-caption { position: absolute; left: 50%; top: 173mm; margin-left: -28mm; width: 56mm; text-align: center; font-weight: 900; font-size: 10pt; letter-spacing: 0.7pt; color: #1f5a86; }
 
         .page-break { page-break-before: always; }
 
-        .page2-title { position: absolute; left: 0; right: 0; top: 6mm; text-align: center; font-weight: 800; font-size: 16pt; }
-        .page2-midline { position: absolute; left: 50%; top: 20mm; bottom: 26mm; width: 0.5mm; border-left: 0.6mm dotted #cfcfcf; transform: translateX(-50%); }
+        .p2-title { position: absolute; left: 0; right: 0; top: 4mm; text-align: center; font-weight: 800; font-size: 14pt; }
+        .p2-midline { position: absolute; left: 50%; top: 18mm; bottom: 26mm; width: 0; border-left: 0.6mm dotted #cfcfcf; }
 
-        .circle2 { position: absolute; top: 56mm; width: 62mm; height: 62mm; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .circle2-left { left: 36mm; background: #a7c8e8; }
-        .circle2-right { right: 36mm; background: #1b3553; }
-        .circle2-label { font-weight: 900; font-size: 12pt; letter-spacing: 0.7pt; color: rgba(255,255,255,0.9); line-height: 1.1; margin-bottom: 4mm; }
-        .circle2-right .circle2-label { color: rgba(255,255,255,0.95); }
-        .circle2-value { background: rgba(255,255,255,0.9); color: #111; font-weight: 900; font-size: 14pt; padding: 1.6mm 6mm; border-radius: 2mm; min-width: 36mm; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .p2-circle { position: absolute; top: 56mm; width: 62mm; height: 62mm; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .p2-circle.left { left: 36mm; background: #a7c8e8; }
+        .p2-circle.right { right: 36mm; background: #1b3553; }
+        .p2-label { font-weight: 900; font-size: 12pt; letter-spacing: 0.7pt; color: rgba(255,255,255,0.92); line-height: 1.1; margin-bottom: 4mm; }
+        .p2-value { background: rgba(255,255,255,0.9); color: #111; font-weight: 900; font-size: 14pt; padding: 1.6mm 6mm; border-radius: 2mm; min-width: 36mm; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-        .p2-foot-left { position: absolute; left: 36mm; top: 123mm; width: 62mm; text-align: center; font-size: 9pt; font-weight: 700; color: #4a4a4a; }
-        .p2-foot-right { position: absolute; right: 36mm; top: 123mm; width: 62mm; text-align: center; font-size: 9pt; font-weight: 700; color: #4a4a4a; }
+        .double-arrow { position: absolute; left: 50%; top: 88mm; margin-left: -18mm; width: 36mm; height: 6mm; background: #2f7dbd; }
+        .double-arrow::before { content: ""; position: absolute; left: -8mm; top: 50%; margin-top: -6mm; width: 0; height: 0; border-top: 6mm solid transparent; border-bottom: 6mm solid transparent; border-right: 8mm solid #2f7dbd; }
+        .double-arrow::after { content: ""; position: absolute; right: -8mm; top: 50%; margin-top: -6mm; width: 0; height: 0; border-top: 6mm solid transparent; border-bottom: 6mm solid transparent; border-left: 8mm solid #2f7dbd; }
 
-        .p2-long { position: absolute; left: 50%; transform: translateX(-50%); bottom: 18mm; font-weight: 900; letter-spacing: 0.7pt; color: #1f5a86; }
-        .p2-sub { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12mm; font-size: 9pt; font-weight: 700; color: #1f5a86; }
+        .p2-foot { position: absolute; top: 123mm; width: 62mm; text-align: center; font-size: 9pt; font-weight: 700; color: #4a4a4a; }
+        .p2-foot.left { left: 36mm; }
+        .p2-foot.right { right: 36mm; }
 
-        .nowrap { white-space: nowrap; }
+        .p2-long { position: absolute; left: 50%; bottom: 18mm; margin-left: -28mm; width: 56mm; text-align: center; font-weight: 900; letter-spacing: 0.7pt; color: #1f5a86; }
+        .p2-sub { position: absolute; left: 50%; bottom: 12mm; margin-left: -38mm; width: 76mm; text-align: center; font-size: 9pt; font-weight: 700; color: #1f5a86; }
     </style>
 </head>
 <body>
     <div class="page">
-        <div class="titlebar">
-            <div class="money">$</div>
-            <div class="title">Simple Automated Cashflow System (SACS)</div>
-            <div class="subtitle">{{ client.full_name }}</div>
+        <div class="header">
+            <div class="header-dollar">$</div>
+            <div class="header-title">Simple Automated Cashflow System (SACS)</div>
+            <div class="header-client">{{ client.full_name }}</div>
             <div class="money-stack">
-                <svg viewBox="0 0 120 80" width="100%" height="100%">
-                    <rect x="12" y="18" width="76" height="42" rx="6" fill="#d9d9d9" stroke="#bdbdbd" stroke-width="2"/>
-                    <rect x="26" y="10" width="76" height="42" rx="6" fill="#efefef" stroke="#bdbdbd" stroke-width="2"/>
-                    <rect x="34" y="24" width="22" height="6" fill="#bdbdbd"/>
-                    <rect x="42" y="36" width="22" height="6" fill="#bdbdbd"/>
-                </svg>
+                <div class="bill back"></div>
+                <div class="bill front"></div>
             </div>
         </div>
 
@@ -75,95 +107,62 @@
                 <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.outflow) }} <span class="muted">Client 2</span></div>
             </div>
 
-            <div class="label-right">1: Monthly<br>Expenses</div>
-            <div class="label-mid">Assumed transfer on the 28th</div>
+            <div class="green-arrow"></div>
 
-            <svg viewBox="0 0 210 297" style="position:absolute; inset:0; width:100%; height:100%;">
-                <defs>
-                    <marker id="arrowGrey" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-                        <path d="M0,0 L12,6 L0,12 z" fill="#b9b9b9"></path>
-                    </marker>
-                    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-                        <path d="M0,0 L12,6 L0,12 z" fill="#5c94c8"></path>
-                    </marker>
-                </defs>
-
-                <path d="M22 70 L62 70" stroke="#3bb54a" stroke-width="7" marker-end="url(#arrowGrey)" fill="none"></path>
-
-                <path d="M82 76 L128 76" stroke="#b9b9b9" stroke-width="3.5" marker-end="url(#arrowGrey)" fill="none"></path>
-                <g transform="translate(104,70)">
-                    <line x1="-6" y1="-6" x2="6" y2="6" stroke="#d84234" stroke-width="3"></line>
-                    <line x1="6" y1="-6" x2="-6" y2="6" stroke="#d84234" stroke-width="3"></line>
-                </g>
-
-                <path d="M62 92 L62 122 L105 122" stroke="#b9b9b9" stroke-width="3.5" marker-end="url(#arrowBlue)" fill="none"></path>
-            </svg>
-
-            <div class="bubble bubble-inflow">
+            <div class="bubble inflow">
                 <div class="bubble-label">INFLOW</div>
-                <div class="value-pill">${{ "{:,.0f}".format(totals.inflow) }}</div>
+                <div class="value-box">${{ "{:,.0f}".format(totals.inflow) }}</div>
                 <div class="floor">$1,000 Floor</div>
             </div>
 
-            <div class="bubble bubble-outflow">
+            <div class="bubble outflow">
                 <div class="bubble-label">OUTFLOW</div>
-                <div class="value-pill">${{ "{:,.0f}".format(totals.outflow) }}</div>
+                <div class="value-box">${{ "{:,.0f}".format(totals.outflow) }}</div>
                 <div class="floor">$1,000 Floor</div>
             </div>
 
-            <div class="bubble bubble-reserve">
-                <div class="bubble-label">PRIVATE<br>RESERVE</div>
-                <svg class="reserve-icon" viewBox="0 0 64 64">
-                    <path d="M12 30c0-11 9-20 20-20h0c11 0 20 9 20 20v10c0 9-7 16-16 16H28c-9 0-16-7-16-16V30z" fill="#f4a3b2" opacity="0.9"></path>
-                    <circle cx="42" cy="28" r="5" fill="#f8d0d7"></circle>
-                    <rect x="26" y="22" width="12" height="6" rx="3" fill="#f8d0d7"></rect>
-                    <circle cx="30" cy="34" r="2" fill="#8a3b45"></circle>
-                    <circle cx="40" cy="34" r="2" fill="#8a3b45"></circle>
-                    <path d="M31 41c3 3 7 3 10 0" stroke="#8a3b45" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
-                    <rect x="20" y="20" width="24" height="3" rx="1.5" fill="#ffd166"></rect>
-                </svg>
-                <div class="value-pill" style="margin-top:4mm;">${{ "{:,.0f}".format(totals.private_reserve_balance) }}</div>
+            <div class="flow-arrow">
+                <div class="flow-arrow-text">X = ${{ "{:,.0f}".format(totals.outflow) }}/month*</div>
+            </div>
+            <div class="red-x"></div>
+            <div class="assumed">Assumed transfer on the 28th</div>
+
+            <div class="monthly-expenses">1: Monthly<br>Expenses</div>
+            <div class="bracket"></div>
+
+            <div class="down-arrow"></div>
+            <div class="excess-label">${{ "{:,.0f}".format(totals.excess) }}/mo*</div>
+
+            <div class="bubble reserve">
+                <div class="bubble-label small-break">PRIVATE<br>RESERVE</div>
+                <div class="reserve-icon"></div>
+                <div class="value-box" style="margin-top:4mm;">${{ "{:,.0f}".format(totals.private_reserve_balance) }}</div>
             </div>
 
-            <div style="position:absolute; left:50%; transform:translateX(-50%); top:83mm; font-size:9pt; font-weight:900; color:#d84234;">
-                <span class="nowrap">X = ${{ "{:,.0f}".format(totals.outflow) }}/month*</span>
-            </div>
-            <div style="position:absolute; left:44mm; top:132mm; font-size:9pt; font-weight:900; color:#2f7dbd;">
-                <span class="nowrap">${{ "{:,.0f}".format(totals.excess) }}/mo*</span>
-            </div>
-
-            <div class="month-caption">MONTHLY CASHFLOW</div>
+            <div class="monthly-caption">MONTHLY CASHFLOW</div>
         </div>
     </div>
 
     <div class="page-break"></div>
 
     <div class="page">
-        <div class="page2-title">Simple Automated Cashflow System (SACS)</div>
-        <div class="page2-midline"></div>
+        <div class="p2-title">Simple Automated Cashflow System (SACS)</div>
+        <div class="p2-midline"></div>
 
-        <svg viewBox="0 0 210 297" style="position:absolute; left:0; top:0; width:100%; height:100%;">
-            <defs>
-                <marker id="p2Arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-                    <path d="M0,0 L12,6 L0,12 z" fill="#2f7dbd"></path>
-                </marker>
-            </defs>
-            <path d="M96 92 L114 92" stroke="#2f7dbd" stroke-width="5" marker-end="url(#p2Arrow)" fill="none"></path>
-            <path d="M114 92 L96 92" stroke="#2f7dbd" stroke-width="5" marker-end="url(#p2Arrow)" fill="none"></path>
-        </svg>
-
-        <div class="circle2 circle2-left">
-            <div class="circle2-label">FICA<br>ACCOUNT</div>
-            <div class="circle2-value">${{ "{:,.0f}".format(totals.private_reserve_target) }}</div>
+        <div class="p2-circle left">
+            <div class="p2-label">FICA<br>ACCOUNT</div>
+            <div class="p2-value">${{ "{:,.0f}".format(totals.private_reserve_target) }}</div>
         </div>
 
-        <div class="circle2 circle2-right">
-            <div class="circle2-label">INVESTMENT<br>ACCOUNT</div>
-            <div class="circle2-value">${{ "{:,.0f}".format(totals.private_reserve_balance) }}+</div>
+        <div class="p2-circle right">
+            <div class="p2-label">INVESTMENT<br>ACCOUNT</div>
+            <div class="p2-value">${{ "{:,.0f}".format(totals.private_reserve_balance) }}+</div>
         </div>
 
-        <div class="p2-foot-left">6X Monthly Expenses + Deductibles</div>
-        <div class="p2-foot-right">Remainder</div>
+        <div class="double-arrow"></div>
+
+        <div class="p2-foot left">6X Monthly Expenses + Deductibles</div>
+        <div class="p2-foot right">Remainder</div>
 
         <div class="p2-long">LONG TERM CASHFLOW</div>
         <div class="p2-sub">(Magnified Private Reserve Cashflow)</div>
