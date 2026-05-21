@@ -3,169 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @page { size: A4; margin: 10mm; }
+        @page { size: A4; margin: 0; }
         html, body { margin: 0; padding: 0; }
         body { font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif; color: #111; }
 
-        .page { position: relative; height: 277mm; }
+        .page { position: relative; width: 794px; height: 1123px; }
+        .pad { position: absolute; inset: 40px 42px 40px 42px; }
 
-        .header { position: relative; height: 18mm; }
-        .header-dollar { position: absolute; left: 0; top: 0; font-size: 28pt; font-weight: 900; color: #1b7b3a; line-height: 1; }
-        .header-title { position: absolute; left: 0; right: 0; top: 1mm; text-align: center; font-weight: 800; font-size: 14pt; }
-        .header-client { position: absolute; left: 0; right: 0; top: 9mm; text-align: center; font-weight: 800; font-size: 12pt; }
+        .header { position: relative; height: 90px; }
+        .header-dollar { position: absolute; left: 0; top: 0; font-size: 44px; font-weight: 900; color: #1b7b3a; line-height: 1; }
+        .header-title { position: absolute; left: 0; right: 0; top: 8px; text-align: center; font-weight: 800; font-size: 22px; }
+        .header-client { position: absolute; left: 0; right: 0; top: 44px; text-align: center; font-weight: 800; font-size: 18px; }
 
-        .money-stack { position: absolute; right: 0; top: 0; width: 26mm; height: 16mm; }
-        .bill { position: absolute; width: 22mm; height: 12mm; border-radius: 2mm; border: 0.6mm solid #bdbdbd; background: #efefef; }
-        .bill.back { left: 0; top: 3mm; background: #d9d9d9; }
-        .bill.front { left: 4mm; top: 0; }
-        .bill.front::before { content: ""; position: absolute; left: 3mm; top: 3mm; width: 6mm; height: 1.2mm; background: #bdbdbd; }
-        .bill.front::after { content: ""; position: absolute; left: 5mm; top: 7mm; width: 6mm; height: 1.2mm; background: #bdbdbd; }
+        .money-stack { position: absolute; right: 0; top: 0; width: 86px; height: 54px; }
+        .bill { position: absolute; width: 72px; height: 38px; border-radius: 7px; border: 3px solid #bdbdbd; background: #efefef; }
+        .bill.back { left: 0; top: 10px; background: #d9d9d9; }
+        .bill.front { left: 14px; top: 0; box-shadow: 0 2px 0 rgba(0,0,0,0.08); }
+        .bill.front::before { content: ""; position: absolute; left: 10px; top: 10px; width: 22px; height: 4px; background: #bdbdbd; }
+        .bill.front::after { content: ""; position: absolute; left: 16px; top: 22px; width: 22px; height: 4px; background: #bdbdbd; }
 
-        .canvas { position: relative; height: 245mm; }
+        .canvas { position: relative; height: calc(100% - 90px); }
 
-        .legend { position: absolute; left: 0; top: 6mm; font-size: 8.5pt; font-weight: 800; color: #3bb54a; }
-        .legend .muted { opacity: 0.75; }
+        .legend { position: absolute; left: 8px; top: 12px; font-size: 13px; font-weight: 800; color: #3bb54a; line-height: 1.15; }
 
-        .bubble { position: absolute; width: 60mm; height: 60mm; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 -4mm 0 rgba(0,0,0,0.12); }
-        .bubble.inflow { left: 20mm; top: 28mm; background: #3bb54a; }
-        .bubble.outflow { right: 20mm; top: 28mm; background: #d84234; }
-        .bubble.reserve { left: 50%; top: 102mm; margin-left: -30mm; background: #2f7dbd; }
+        .bubble { position: absolute; border-radius: 999px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .bubble.inflow { width: 260px; height: 260px; left: 110px; top: 150px; background: #3bb54a; }
+        .bubble.outflow { width: 260px; height: 260px; right: 110px; top: 150px; background: #d84234; }
+        .bubble.reserve { width: 240px; height: 240px; left: 50%; top: 420px; margin-left: -120px; background: #2f7dbd; }
 
-        .bubble-label { font-size: 15pt; font-weight: 900; letter-spacing: 0.7pt; color: #fff; margin-bottom: 4mm; }
-        .bubble-label.small-break { line-height: 1.05; }
+        .bubble-label { font-size: 22px; font-weight: 900; letter-spacing: 1px; color: #fff; margin-bottom: 22px; }
+        .bubble-label.reserve { line-height: 1.05; margin-bottom: 18px; }
 
-        .value-box { background: #fff; color: #111; font-weight: 900; font-size: 15pt; padding: 1.6mm 6mm; border-radius: 1.2mm; min-width: 34mm; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .value-box { background: #fff; color: #111; font-weight: 900; font-size: 22px; padding: 8px 26px; border-radius: 6px; min-width: 140px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .value-box.small { font-size: 20px; padding: 8px 24px; }
 
-        .floor { position: absolute; bottom: 7mm; width: 46mm; left: 50%; margin-left: -23mm; padding-top: 1.5mm; border-top: 0.5mm solid rgba(255,255,255,0.5); color: rgba(255,255,255,0.95); font-size: 9pt; font-weight: 800; }
+        .floor { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); width: 170px; border-top: 3px solid rgba(0,0,0,0.22); padding-top: 6px; color: rgba(0,0,0,0.55); font-weight: 800; font-size: 12px; }
 
-        .reserve-icon { width: 18mm; height: 18mm; border-radius: 50%; background: rgba(255,255,255,0.15); margin-top: 3mm; position: relative; }
-        .reserve-icon::before { content: ""; position: absolute; left: 50%; top: 50%; width: 10mm; height: 8mm; margin-left: -5mm; margin-top: -4mm; border-radius: 5mm 5mm 4mm 4mm; background: #f4a3b2; }
-        .reserve-icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4mm; height: 3mm; margin-left: -2mm; margin-top: -5mm; border-radius: 2mm; background: #ffd166; }
+        .green-arrow { position: absolute; left: 10px; top: 248px; width: 90px; height: 46px; background: #3bb54a; border-radius: 6px; }
+        .green-arrow::after { content: ""; position: absolute; right: -28px; top: 0; width: 0; height: 0; border-top: 23px solid transparent; border-bottom: 23px solid transparent; border-left: 28px solid #3bb54a; }
 
-        .green-arrow { position: absolute; left: 7mm; top: 46mm; width: 12mm; height: 10mm; background: #3bb54a; }
-        .green-arrow::before { content: ""; position: absolute; left: -7mm; top: 0; width: 0; height: 0; border-top: 5mm solid transparent; border-bottom: 5mm solid transparent; border-right: 7mm solid #3bb54a; }
-        .green-arrow::after { content: ""; position: absolute; right: -7mm; top: 0; width: 0; height: 0; border-top: 5mm solid transparent; border-bottom: 5mm solid transparent; border-left: 7mm solid #3bb54a; }
+        .flow-arrow { position: absolute; left: 310px; top: 235px; width: 220px; height: 44px; border: 3px solid #d84234; border-radius: 6px; background: #fff; }
+        .flow-arrow::after { content: ""; position: absolute; right: -28px; top: 50%; margin-top: -22px; width: 0; height: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-left: 28px solid #d84234; }
+        .flow-arrow::before { content: ""; position: absolute; right: -23px; top: 50%; margin-top: -18px; width: 0; height: 0; border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-left: 23px solid #fff; }
+        .flow-arrow-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: #d84234; }
 
-        .flow-arrow { position: absolute; left: 82mm; top: 52mm; width: 48mm; height: 12mm; border: 0.7mm solid #d84234; border-radius: 2mm; background: #fff; }
-        .flow-arrow::after { content: ""; position: absolute; right: -8mm; top: 50%; margin-top: -6mm; width: 0; height: 0; border-top: 6mm solid transparent; border-bottom: 6mm solid transparent; border-left: 8mm solid #d84234; }
-        .flow-arrow-text { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); font-size: 8pt; font-weight: 900; color: #d84234; text-align: center; }
-
-        .red-x { position: absolute; left: 125mm; top: 47mm; width: 9mm; height: 9mm; }
-        .red-x::before, .red-x::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10mm; height: 1.2mm; background: #d84234; margin-left: -5mm; margin-top: -0.6mm; }
+        .red-x { position: absolute; left: 505px; top: 205px; width: 34px; height: 34px; }
+        .red-x::before, .red-x::after { content: ""; position: absolute; left: 50%; top: 50%; width: 42px; height: 5px; background: #d84234; margin-left: -21px; margin-top: -2.5px; }
         .red-x::before { transform: rotate(45deg); }
         .red-x::after { transform: rotate(-45deg); }
 
-        .assumed { position: absolute; left: 50%; top: 66mm; margin-left: -35mm; width: 70mm; font-size: 8pt; color: #777; font-weight: 700; text-align: center; }
+        .assumed { position: absolute; left: 330px; top: 282px; width: 230px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.45); }
 
-        .monthly-expenses { position: absolute; right: 0; top: 42mm; width: 34mm; font-size: 8pt; color: #777; font-weight: 800; text-align: left; }
-        .bracket { position: absolute; right: 18mm; top: 52mm; width: 12mm; height: 26mm; border-left: 0.7mm solid #555; border-top: 0.7mm solid #555; border-bottom: 0.7mm solid #555; }
+        .monthly-expenses { position: absolute; right: 4px; top: 204px; width: 120px; font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.45); }
+        .bracket { position: absolute; right: 72px; top: 236px; width: 60px; height: 110px; border-left: 3px solid rgba(0,0,0,0.55); border-top: 3px solid rgba(0,0,0,0.55); border-bottom: 3px solid rgba(0,0,0,0.55); }
 
-        .down-arrow { position: absolute; left: 36mm; top: 92mm; width: 16mm; height: 14mm; border: 0.7mm solid #5c94c8; background: rgba(92,148,200,0.12); }
-        .down-arrow::after { content: ""; position: absolute; left: 50%; bottom: -8mm; margin-left: -6mm; width: 0; height: 0; border-left: 6mm solid transparent; border-right: 6mm solid transparent; border-top: 8mm solid #5c94c8; }
-        .excess-label { position: absolute; left: 22mm; top: 117mm; font-size: 8pt; font-weight: 900; color: #5c94c8; }
+        .down-arrow { position: absolute; left: 200px; top: 430px; width: 56px; height: 52px; border: 3px solid #5c94c8; background: rgba(92,148,200,0.12); }
+        .down-arrow::after { content: ""; position: absolute; left: 50%; bottom: -34px; margin-left: -20px; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 34px solid #5c94c8; }
+        .down-arrow::before { content: ""; position: absolute; left: 50%; bottom: -28px; margin-left: -16px; width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 28px solid rgba(255,255,255,0.85); }
+        .excess-label { position: absolute; left: 158px; top: 520px; font-size: 14px; font-weight: 900; color: #5c94c8; }
 
-        .monthly-caption { position: absolute; left: 50%; top: 173mm; margin-left: -28mm; width: 56mm; text-align: center; font-weight: 900; font-size: 10pt; letter-spacing: 0.7pt; color: #1f5a86; }
+        .reserve-icon { width: 64px; height: 64px; border-radius: 999px; background: rgba(255,255,255,0.14); margin-top: 8px; position: relative; }
+        .reserve-icon::before { content: ""; position: absolute; left: 50%; top: 50%; width: 38px; height: 30px; margin-left: -19px; margin-top: -12px; border-radius: 18px 18px 16px 16px; background: #f4a3b2; }
+        .reserve-icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 16px; height: 12px; margin-left: -8px; margin-top: -22px; border-radius: 10px; background: #ffd166; }
+
+        .monthly-caption { position: absolute; left: 50%; bottom: 160px; transform: translateX(-50%); font-weight: 900; letter-spacing: 1px; font-size: 14px; color: #1f5a86; }
 
         .page-break { page-break-before: always; }
 
-        .p2-title { position: absolute; left: 0; right: 0; top: 4mm; text-align: center; font-weight: 800; font-size: 14pt; }
-        .p2-midline { position: absolute; left: 50%; top: 18mm; bottom: 26mm; width: 0; border-left: 0.6mm dotted #cfcfcf; }
+        .p2-title { position: absolute; left: 0; right: 0; top: 40px; text-align: center; font-weight: 800; font-size: 22px; }
+        .p2-midline { position: absolute; left: 50%; top: 90px; bottom: 120px; border-left: 3px dotted rgba(0,0,0,0.18); }
 
-        .p2-circle { position: absolute; top: 56mm; width: 62mm; height: 62mm; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .p2-circle.left { left: 36mm; background: #a7c8e8; }
-        .p2-circle.right { right: 36mm; background: #1b3553; }
-        .p2-label { font-weight: 900; font-size: 12pt; letter-spacing: 0.7pt; color: rgba(255,255,255,0.92); line-height: 1.1; margin-bottom: 4mm; }
-        .p2-value { background: rgba(255,255,255,0.9); color: #111; font-weight: 900; font-size: 14pt; padding: 1.6mm 6mm; border-radius: 2mm; min-width: 36mm; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .p2-circle { position: absolute; top: 240px; width: 280px; height: 280px; border-radius: 999px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .p2-circle.left { left: 150px; background: #a7c8e8; }
+        .p2-circle.right { right: 150px; background: #1b3553; }
+        .p2-label { font-weight: 900; font-size: 22px; letter-spacing: 1px; color: rgba(255,255,255,0.92); line-height: 1.05; margin-bottom: 22px; }
+        .p2-value { background: rgba(255,255,255,0.92); color: #111; font-weight: 900; font-size: 22px; padding: 8px 26px; border-radius: 6px; min-width: 160px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-        .double-arrow { position: absolute; left: 50%; top: 88mm; margin-left: -18mm; width: 36mm; height: 6mm; background: #2f7dbd; }
-        .double-arrow::before { content: ""; position: absolute; left: -8mm; top: 50%; margin-top: -6mm; width: 0; height: 0; border-top: 6mm solid transparent; border-bottom: 6mm solid transparent; border-right: 8mm solid #2f7dbd; }
-        .double-arrow::after { content: ""; position: absolute; right: -8mm; top: 50%; margin-top: -6mm; width: 0; height: 0; border-top: 6mm solid transparent; border-bottom: 6mm solid transparent; border-left: 8mm solid #2f7dbd; }
+        .double-arrow { position: absolute; left: 50%; top: 356px; width: 240px; height: 44px; margin-left: -120px; background: #2f7dbd; z-index: 3; }
+        .double-arrow::before { content: ""; position: absolute; left: -34px; top: 0; width: 0; height: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-right: 34px solid #2f7dbd; }
+        .double-arrow::after { content: ""; position: absolute; right: -34px; top: 0; width: 0; height: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-left: 34px solid #2f7dbd; }
 
-        .p2-foot { position: absolute; top: 123mm; width: 62mm; text-align: center; font-size: 9pt; font-weight: 700; color: #4a4a4a; }
-        .p2-foot.left { left: 36mm; }
-        .p2-foot.right { right: 36mm; }
+        .p2-foot { position: absolute; top: 560px; width: 280px; text-align: center; font-size: 14px; font-weight: 800; color: rgba(0,0,0,0.65); }
+        .p2-foot.left { left: 150px; }
+        .p2-foot.right { right: 150px; }
 
-        .p2-long { position: absolute; left: 50%; bottom: 18mm; margin-left: -28mm; width: 56mm; text-align: center; font-weight: 900; letter-spacing: 0.7pt; color: #1f5a86; }
-        .p2-sub { position: absolute; left: 50%; bottom: 12mm; margin-left: -38mm; width: 76mm; text-align: center; font-size: 9pt; font-weight: 700; color: #1f5a86; }
+        .p2-long { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); text-align: center; font-weight: 900; letter-spacing: 1px; color: #1f5a86; }
+        .p2-sub { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); text-align: center; font-size: 14px; font-weight: 800; color: #1f5a86; }
     </style>
 </head>
 <body>
     <div class="page">
-        <div class="header">
-            <div class="header-dollar">$</div>
-            <div class="header-title">Simple Automated Cashflow System (SACS)</div>
-            <div class="header-client">{{ client.full_name }}</div>
-            <div class="money-stack">
-                <div class="bill back"></div>
-                <div class="bill front"></div>
-            </div>
-        </div>
-
-        <div class="canvas">
-            <div class="legend">
-                <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.inflow) }} <span class="muted">Client 1</span></div>
-                <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.outflow) }} <span class="muted">Client 2</span></div>
+        <div class="pad">
+            <div class="header">
+                <div class="header-dollar">$</div>
+                <div class="header-title">Simple Automated Cashflow System (SACS)</div>
+                <div class="header-client">{{ client.full_name }}</div>
+                <div class="money-stack">
+                    <div class="bill back"></div>
+                    <div class="bill front"></div>
+                </div>
             </div>
 
-            <div class="green-arrow"></div>
+            <div class="canvas">
+                <div class="legend">
+                    <div>${{ "{:,.0f}".format(totals.inflow) }} Client 1</div>
+                    <div>${{ "{:,.0f}".format(totals.outflow) }} Client 2</div>
+                </div>
 
-            <div class="bubble inflow">
-                <div class="bubble-label">INFLOW</div>
-                <div class="value-box">${{ "{:,.0f}".format(totals.inflow) }}</div>
-                <div class="floor">$1,000 Floor</div>
+                <div class="green-arrow"></div>
+
+                <div class="bubble inflow">
+                    <div class="bubble-label">INFLOW</div>
+                    <div class="value-box">${{ "{:,.0f}".format(totals.inflow) }}</div>
+                    <div class="floor">$1,000 Floor</div>
+                </div>
+
+                <div class="bubble outflow">
+                    <div class="bubble-label">OUTFLOW</div>
+                    <div class="value-box small">${{ "{:,.0f}".format(totals.outflow) }}</div>
+                    <div class="floor">$1,000 Floor</div>
+                </div>
+
+                <div class="flow-arrow">
+                    <div class="flow-arrow-text">X = ${{ "{:,.0f}".format(totals.outflow) }}/month*</div>
+                </div>
+                <div class="red-x"></div>
+                <div class="assumed">Assumed transfer on the 28th</div>
+
+                <div class="monthly-expenses">1: Monthly<br>Expenses</div>
+                <div class="bracket"></div>
+
+                <div class="down-arrow"></div>
+                <div class="excess-label">${{ "{:,.0f}".format(totals.excess) }}/mo*</div>
+
+                <div class="bubble reserve">
+                    <div class="bubble-label reserve">PRIVATE<br>RESERVE</div>
+                    <div class="reserve-icon"></div>
+                    <div class="value-box" style="margin-top:18px;">${{ "{:,.0f}".format(totals.private_reserve_balance) }}</div>
+                </div>
+
+                <div class="monthly-caption">MONTHLY CASHFLOW</div>
             </div>
-
-            <div class="bubble outflow">
-                <div class="bubble-label">OUTFLOW</div>
-                <div class="value-box">${{ "{:,.0f}".format(totals.outflow) }}</div>
-                <div class="floor">$1,000 Floor</div>
-            </div>
-
-            <div class="flow-arrow">
-                <div class="flow-arrow-text">X = ${{ "{:,.0f}".format(totals.outflow) }}/month*</div>
-            </div>
-            <div class="red-x"></div>
-            <div class="assumed">Assumed transfer on the 28th</div>
-
-            <div class="monthly-expenses">1: Monthly<br>Expenses</div>
-            <div class="bracket"></div>
-
-            <div class="down-arrow"></div>
-            <div class="excess-label">${{ "{:,.0f}".format(totals.excess) }}/mo*</div>
-
-            <div class="bubble reserve">
-                <div class="bubble-label small-break">PRIVATE<br>RESERVE</div>
-                <div class="reserve-icon"></div>
-                <div class="value-box" style="margin-top:4mm;">${{ "{:,.0f}".format(totals.private_reserve_balance) }}</div>
-            </div>
-
-            <div class="monthly-caption">MONTHLY CASHFLOW</div>
         </div>
     </div>
 
     <div class="page-break"></div>
 
     <div class="page">
-        <div class="p2-title">Simple Automated Cashflow System (SACS)</div>
-        <div class="p2-midline"></div>
+        <div class="pad">
+            <div class="p2-title">Simple Automated Cashflow System (SACS)</div>
+            <div class="p2-midline"></div>
 
-        <div class="p2-circle left">
-            <div class="p2-label">FICA<br>ACCOUNT</div>
-            <div class="p2-value">${{ "{:,.0f}".format(totals.private_reserve_target) }}</div>
+            <div class="p2-circle left">
+                <div class="p2-label">FICA<br>ACCOUNT</div>
+                <div class="p2-value">${{ "{:,.0f}".format(totals.private_reserve_target) }}</div>
+            </div>
+
+            <div class="p2-circle right">
+                <div class="p2-label">INVESTMENT<br>ACCOUNT</div>
+                <div class="p2-value">${{ "{:,.0f}".format(totals.private_reserve_balance) }}+</div>
+            </div>
+
+            <div class="double-arrow"></div>
+
+            <div class="p2-foot left">6X Monthly Expenses + Deductibles</div>
+            <div class="p2-foot right">Remainder</div>
+
+            <div class="p2-long">LONG TERM CASHFLOW</div>
+            <div class="p2-sub">(Magnified Private Reserve Cashflow)</div>
         </div>
-
-        <div class="p2-circle right">
-            <div class="p2-label">INVESTMENT<br>ACCOUNT</div>
-            <div class="p2-value">${{ "{:,.0f}".format(totals.private_reserve_balance) }}+</div>
-        </div>
-
-        <div class="double-arrow"></div>
-
-        <div class="p2-foot left">6X Monthly Expenses + Deductibles</div>
-        <div class="p2-foot right">Remainder</div>
-
-        <div class="p2-long">LONG TERM CASHFLOW</div>
-        <div class="p2-sub">(Magnified Private Reserve Cashflow)</div>
     </div>
 </body>
 </html>
