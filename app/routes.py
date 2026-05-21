@@ -114,12 +114,10 @@ def household_detail(household_id):
     household = Household.query.get_or_404(household_id)
     individuals = sorted(household.individuals, key=lambda x: x.designation)
     private_reserve_target = get_private_reserve_target(household)
-    trust_asset = TrustAsset.query.filter_by(household_id=household_id).first()
     return render_template(
         "household_detail.html",
         household=household,
         individuals=individuals,
-        trust_asset=trust_asset,
         private_reserve_target=private_reserve_target,
     )
 
@@ -187,18 +185,32 @@ def edit_household(household_id):
     return render_template("edit_household.html", household=household, individuals=individuals)
 
 
-@main_bp.route("/household/<int:household_id>/trust", methods=["POST"])
-def set_trust(household_id):
+@main_bp.route("/household/<int:household_id>/trust/add", methods=["POST"])
+def add_trust(household_id):
     household = Household.query.get_or_404(household_id)
     address = (request.form.get("property_address") or "").strip()
     if not address:
         flash("Property address is required.", "error")
         return redirect(url_for("main.household_detail", household_id=household_id))
-    existing = TrustAsset.query.filter_by(household_id=household.id).first()
-    if existing:
-        existing.property_address = address
-    else:
-        db.session.add(TrustAsset(household_id=household.id, property_address=address))
+    db.session.add(TrustAsset(household_id=household.id, property_address=address))
+    db.session.commit()
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
+
+@main_bp.route("/trust/<int:trust_id>/edit", methods=["POST"])
+def edit_trust(trust_id):
+    trust = TrustAsset.query.get_or_404(trust_id)
+    address = (request.form.get("property_address") or trust.property_address).strip()
+    trust.property_address = address
+    db.session.commit()
+    return redirect(url_for("main.household_detail", household_id=trust.household_id))
+
+
+@main_bp.route("/trust/<int:trust_id>/delete", methods=["POST"])
+def delete_trust(trust_id):
+    trust = TrustAsset.query.get_or_404(trust_id)
+    household_id = trust.household_id
+    db.session.delete(trust)
     db.session.commit()
     return redirect(url_for("main.household_detail", household_id=household_id))
 
@@ -214,6 +226,56 @@ def add_liability(household_id):
     db.session.commit()
     return redirect(url_for("main.household_detail", household_id=household_id))
 
+@main_bp.route("/account/<int:account_id>/edit", methods=["POST"])
+def edit_account(account_id):
+    account = Account.query.get_or_404(account_id)
+    household_id = account.household_id or account.individual.household_id
+    
+    category = (request.form.get("category") or account.category).strip()
+    account_type = (request.form.get("account_type") or account.account_type).strip()
+    institution_name = (request.form.get("institution_name") or account.institution_name).strip()
+    account_name = (request.form.get("account_name") or account.account_name).strip()
+    last_four = (request.form.get("account_number_last_four") or account.account_number_last_four).strip()
+
+    scope = (request.form.get("scope") or "household").strip()
+    owner_individual_id_raw = (request.form.get("individual_id") or "").strip()
+    attributed_individual_id_raw = (request.form.get("attributed_individual_id") or "").strip()
+
+    individual_id = int(owner_individual_id_raw) if owner_individual_id_raw else None
+    attributed_individual_id = int(attributed_individual_id_raw) if attributed_individual_id_raw else None
+
+    if category == "retirement" and not individual_id:
+        flash("Retirement accounts must be assigned to Client 1 or Client 2.", "error")
+        return redirect(url_for("main.household_detail", household_id=household_id))
+
+    account.category = category
+    account.account_type = account_type
+    account.institution_name = institution_name
+    account.account_name = account_name
+    account.account_number_last_four = last_four
+    account.household_id = household_id if scope == "household" else None
+    account.individual_id = individual_id if scope == "individual" else None
+    account.attributed_individual_id = attributed_individual_id
+
+    db.session.commit()
+    flash("Account updated successfully!", "success")
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
+@main_bp.route("/liability/<int:liability_id>/edit", methods=["POST"])
+def edit_liability(liability_id):
+    liability = Liability.query.get_or_404(liability_id)
+    household_id = liability.household_id
+    
+    loan_type = (request.form.get("loan_type") or liability.loan_type).strip()
+    interest_rate = parse_float(request.form.get("interest_rate"), 0)
+    
+    liability.loan_type = loan_type
+    liability.interest_rate = interest_rate
+    
+    db.session.commit()
+    flash("Liability updated successfully!", "success")
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
 @main_bp.route("/account/<int:account_id>/delete", methods=["POST"])
 def delete_account(account_id):
     account = Account.query.get_or_404(account_id)
@@ -221,15 +283,6 @@ def delete_account(account_id):
     db.session.delete(account)
     db.session.commit()
     flash("Account deleted successfully!", "success")
-    return redirect(url_for("main.household_detail", household_id=household_id))
-
-@main_bp.route("/household/<int:household_id>/trust/delete", methods=["POST"])
-def delete_trust(household_id):
-    trust_asset = TrustAsset.query.filter_by(household_id=household_id).first()
-    if trust_asset:
-        db.session.delete(trust_asset)
-        db.session.commit()
-        flash("Trust deleted successfully!", "success")
     return redirect(url_for("main.household_detail", household_id=household_id))
 
 @main_bp.route("/liability/<int:liability_id>/delete", methods=["POST"])
