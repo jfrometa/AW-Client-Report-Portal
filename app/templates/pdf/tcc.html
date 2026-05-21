@@ -3,295 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        /* === CONFIGURACIÓN EXACTA DE HOJA === */
         @page {
             size: A4 landscape;
+            margin: 0; 
+        }
+        
+        html, body {
+            font-family: 'Helvetica', Arial, sans-serif;
             margin: 0;
-        }
-        body {
-            font-family: 'Helvetica', sans-serif;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-            background-color: #fdfdfd;
-        }
-        .container {
-            border: 1px solid #ccc;
-            height: 100%;
-            position: relative;
-            padding: 20px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .client-info {
-            font-size: 14px;
-        }
-        .client-info div { margin-bottom: 2px; }
-        .grand-total-box {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            border-radius: 4px;
-        }
-        .grand-total-box .label { font-size: 10px; text-transform: uppercase; }
-        .grand-total-box .value { font-size: 18px; font-weight: bold; }
-
-        /* Grid Layout */
-        .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            height: 500px;
-            gap: 10px;
-            position: relative;
-        }
-        .divider-h {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            border-top: 1px solid #ddd;
-        }
-        .divider-v {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            height: 100%;
-            border-left: 1px solid #ddd;
+            padding: 0;
+            color: #111;
+            background-color: #fff;
+            width: 297mm; 
+            height: 210mm;
+            box-sizing: border-box;
+            overflow: hidden; /* Evita cualquier salto de pagina */
         }
 
-        /* Section Labels */
+        /* === CONTENEDOR PRINCIPAL === */
+        .report-container {
+            width: 287mm; 
+            height: 200mm; 
+            margin: 5mm;
+            border: 1px solid #a3b899;
+            position: relative;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        /* === 4 CUADRANTES CON POSICIÓN ABSOLUTA === */
+        .quadrant { position: absolute; width: 50%; height: 50%; box-sizing: border-box; }
+        
+        .quad-tl { top: 0; left: 0; border-right: 1px solid #a3b899; border-bottom: 1px solid #a3b899; }
+        .quad-tr { top: 0; left: 50%; border-bottom: 1px solid #a3b899; }
+        .quad-bl { top: 50%; left: 0; border-right: none; } /* Borde derecho eliminado para que la linea central termine en el tope */
+        .quad-br { top: 50%; left: 50%; }
+
+        /* === ETIQUETAS DE SECCIÓN === */
         .section-label {
-            font-size: 12px;
-            color: #999;
-            font-weight: bold;
-            text-transform: uppercase;
-            position: absolute;
+            position: absolute; font-size: 10px; font-weight: bold; color: #a3b899; z-index: 5;
         }
-        .label-retirement-l { top: 10px; left: 10px; }
-        .label-retirement-r { top: 10px; right: 10px; }
-        .label-non-retirement { bottom: 10px; left: 10px; }
+        .quad-tl .section-label { bottom: 5px; left: 15px; }
+        .quad-tr .section-label { bottom: 5px; right: 15px; }
+        .quad-bl .section-label { top: 5px; left: 15px; color: #999; }
+        .quad-br .section-label { top: 5px; right: 15px; color: #999; }
 
-        /* Bubbles */
+        /* === CAJAS Y PERFILES (Posición fija dentro de cada cuadrante) === */
+        .dark-summary-box {
+            background-color: #666; color: white; padding: 6px 10px; text-align: center;
+            font-size: 11px; font-weight: bold; border-radius: 2px;
+        }
+        
+        /* Top Left - Ajustados para evitar solapamiento */
+        .quad-tl .dark-summary-box { position: absolute; top: 55px; left: 15px; width: 140px; }
+        .quad-tl .profile-oval { position: absolute; top: 15px; left: 245px; }
+        
+        /* Top Right - Ajustados para evitar solapamiento */
+        .quad-tr .profile-oval { position: absolute; top: 15px; right: 245px; }
+        .quad-tr .dark-summary-box { position: absolute; top: 55px; right: 15px; width: 140px; }
+
+        .profile-oval {
+            background-color: #8bbf40; border: 1.5px solid #111; border-radius: 70px / 45px;
+            width: 140px; height: 90px; text-align: center; color: #111; font-size: 9px; line-height: 1.2;
+            display: table;
+        }
+        .profile-inner {
+            display: table-cell; vertical-align: middle; padding: 5px;
+        }
+        .profile-oval .p-title { font-size: 13px; font-weight: bold; margin-bottom: 2px;}
+
+        /* === CONTENEDOR DE BURBUJAS === */
+        .bubbles-wrap {
+            position: absolute; left: 0; right: 0; bottom: 5px; text-align: center;
+        }
+        .quad-tl .bubbles-wrap, .quad-tr .bubbles-wrap { top: 125px; } /* Ajustado para que las burbujas no toquen las cajas de arriba */
+        .quad-bl .bubbles-wrap { top: 25px; left: 20px; right: 130px; text-align: center; } 
+        .quad-br .bubbles-wrap { top: 25px; left: 130px; right: 20px; text-align: center; }  
+
+        /* === BURBUJAS REDISEÑADAS (Dimensiones más grandes y seguras) === */
+        .bubble-container {
+            display: inline-block; 
+            vertical-align: top; 
+            margin: 5px; 
+            position: relative;
+            width: 120px;
+            height: 120px;
+            box-sizing: border-box;
+        }
         .bubble {
-            border: 1px solid #333;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
+            border: 1.2px solid #333; 
+            border-radius: 50%; 
             background: white;
-            margin: 5px;
-        }
-        .bubble-sm { width: 100px; height: 100px; font-size: 10px; }
-        .bubble-md { width: 140px; height: 140px; font-size: 11px; }
-        .bubble-lg { width: 180px; height: 180px; font-size: 13px; }
-        
-        .bubble-green { background-color: #8BC34A; color: white; border: none; }
-        
-        .bubble .acc-name { font-weight: bold; margin-bottom: 4px; }
-        .bubble .acc-val { font-size: 14px; font-weight: bold; }
-        .bubble .acc-date { font-size: 9px; color: #666; margin-top: 4px; }
-        .bubble .acc-cash { 
-            margin-top: 5px; 
-            border-top: 1px solid #eee; 
-            padding-top: 3px;
-            font-size: 10px;
-        }
-
-        /* Summary Boxes */
-        .summary-box {
-            background-color: #666;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
+            width: 120px; 
+            height: 120px; 
+            display: table; 
             text-align: center;
-            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .bubble-inner {
+            display: table-cell; 
+            vertical-align: top; 
+            padding-top: 18px;
+            padding-left: 8px;
+            padding-right: 8px;
+            box-sizing: border-box;
+        }
+        .acc-name { 
+            font-size: 8.5px; 
+            font-weight: bold; 
+            line-height: 1.2; 
+            margin-bottom: 3px; 
+            word-wrap: break-word;
+            max-height: 32px;
+            overflow: hidden;
+        }
+        .acc-val { font-size: 12px; font-weight: bold; color: #000; line-height: 1.2; }
+        .acc-date { font-size: 7.5px; color: #555; margin-top: 2px; }
+
+        /* Burbuja Cash interna perfecta y centrada */
+        .cash-bubble {
+            position: absolute; 
+            bottom: 6px; 
+            left: 50%; 
+            margin-left: -18px;
+            width: 36px; 
+            height: 36px; 
+            background: #f9f9f9; 
+            border: 1px solid #333; 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            text-align: center; 
+            z-index: 10;
+            box-sizing: border-box;
+        }
+        .cash-inner {
+            font-size: 7.5px; 
+            line-height: 1.1; 
+            font-weight: bold;
+            color: #111;
         }
 
-        /* Positions */
-        .retirement-section {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 20px;
+        /* === ELEMENTOS ABSOLUTOS DEL CENTRO === */
+        .absolute-header {
+            position: absolute; top: 10px; left: 10px; z-index: 30; font-size: 11px; line-height: 1.4;
         }
-        .non-retirement-section {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+
+        .top-center-overlay {
+            position: absolute; top: 5px; left: 50%; margin-left: -90px; width: 180px; z-index: 40; text-align: center;
         }
-        .center-trust {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
+        .grand-total-box {
+            background-color: #555; color: white; padding: 6px 0; text-align: center; border-radius: 2px;
         }
-        
-        .liabilities-box {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #eee;
-            padding: 10px;
-            border-radius: 4px;
-            width: 200px;
-            font-size: 10px;
+        .grand-total-box .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+        .grand-total-box .value { font-size: 16px; font-weight: bold; }
+        .top-liabilities-box {
+            background-color: #e9e9e9; border: 1px solid #ccc; padding: 4px 0; font-size: 9px; margin-top: 2px;
         }
-        .liabilities-box h4 { margin: 0 0 5px 0; border-bottom: 1px solid #ccc; }
-        .liab-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+
+        /* Trust Bubble en el Centro - Posicionada debajo de la linea horizontal y centrada perfecta */
+        .center-trust-overlay {
+            position: absolute; top: 50%; left: 50%; margin-top: 5px; margin-left: -65px;
+            width: 130px; height: 130px; z-index: 35; background: #fff;
+            border: 1.5px solid #444; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            text-align: center; box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            box-sizing: border-box;
+        }
+        .center-trust-overlay .trust-inner {
+            padding: 10px; width: 100%; box-sizing: border-box;
+        }
+
+        /* Liabilities Bottom */
+        .bottom-center-overlay {
+            position: absolute; bottom: 0; left: 50%; margin-left: -100px; width: 200px; z-index: 30;
+        }
+        .liabilities-list {
+            background: #eee; border: 1px solid #ccc; padding: 6px 10px; font-size: 9px; margin-bottom: 5px;
+        }
+        .liab-header { text-align: center; border-bottom: 1px solid #bbb; padding-bottom: 2px; margin-bottom: 3px; font-weight: bold;}
+        .liab-row { display: table; width: 100%; margin-bottom: 1px; }
+        .liab-left { display: table-cell; text-align: left; }
+        .liab-right { display: table-cell; text-align: right; }
+
+        .disclaimer-red { position: absolute; bottom: 5px; right: 5px; color: #c0392b; font-size: 8px; border: 1px solid #c0392b; padding: 3px 5px; background: #fff; z-index: 20;}
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="client-info">
-                <div><strong>NAME:</strong> {{ household.display_name }}</div>
-                <div><strong>DATE:</strong> {{ report.report_date.strftime('%B %d, %Y') }}</div>
-            </div>
+    <div class="report-container">
+        
+        <div class="absolute-header">
+            <div><strong>NAME:</strong> <span style="text-decoration: underline;">{{ household.display_name }}</span></div>
+            <div><strong>DATE:</strong> <span style="text-decoration: underline;">{{ report.report_date.strftime('%B %d, %Y') }}</span></div>
+        </div>
+
+        <div class="top-center-overlay">
             <div class="grand-total-box">
-                <div class="label">Grand Total</div>
-                <div class="value">${{ "{:,.2f}".format(totals.net_worth) }}</div>
+                <div class="label">GRAND TOTAL</div>
+                <div class="value">${{ "{:,.2f}".format(totals.net_worth|default(0)) }}</div>
+            </div>
+            <div class="top-liabilities-box">
+                Liabilities: ${{ "{:,.2f}".format(totals.liabilities|default(0)) }}<br>a/o {{ report.report_date.strftime('%m/%d/%Y') }}
             </div>
         </div>
 
-        <div class="chart-grid">
-            <div class="divider-h"></div>
-            <div class="divider-v"></div>
-
-            <!-- Top Left: Client 1 Retirement -->
-            <div class="retirement-section">
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div class="summary-box">Client 1 Retirement Only<br><strong>${{ "{:,.2f}".format(totals.retirement_client1) }}</strong></div>
-                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-                        {% for person in individuals %}
-                            {% if person.designation == 'client1' %}
-                                {% for account in person.accounts %}
-                                    {% if account.category == 'retirement' %}
-                                        {% set b = balances.get(account.id) %}
-                                        <div class="bubble bubble-md">
-                                            <div class="acc-name">{{ account.account_name or account.account_type }}</div>
-                                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
-                                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                                            {% if b and b.cash_balance %}
-                                                <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <!-- Profile Bubble -->
-                {% for person in individuals %}
-                    {% if person.designation == 'client1' %}
-                        <div class="bubble bubble-lg bubble-green">
-                            <div style="font-size: 16px;">Client 1</div>
-                            <div>{{ person.full_name }}</div>
-                            <div>Age: {{ person.age if person.age else 'N/A' }}</div>
-                            <div>DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else '' }}</div>
-                            <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            <!-- Top Right: Client 2 Retirement -->
-            <div class="retirement-section">
-                {% for person in individuals %}
-                    {% if person.designation == 'client2' %}
-                        <div class="bubble bubble-lg bubble-green">
-                            <div style="font-size: 16px;">Client 2</div>
-                            <div>{{ person.full_name }}</div>
-                            <div>Age: {{ person.age if person.age else 'N/A' }}</div>
-                            <div>DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else '' }}</div>
-                            <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div class="summary-box">Client 2 Retirement Only<br><strong>${{ "{:,.2f}".format(totals.retirement_client2) }}</strong></div>
-                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-                        {% for person in individuals %}
-                            {% if person.designation == 'client2' %}
-                                {% for account in person.accounts %}
-                                    {% if account.category == 'retirement' %}
-                                        {% set b = balances.get(account.id) %}
-                                        <div class="bubble bubble-md">
-                                            <div class="acc-name">{{ account.account_name or account.account_type }}</div>
-                                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
-                                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                                            {% if b and b.cash_balance %}
-                                                <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom: Non-Retirement -->
-            <div class="non-retirement-section" style="grid-column: span 2;">
-                {% for account in household.accounts %}
-                    {% if account.category == 'non_retirement' or account.category == 'private_reserve' %}
-                        {% set b = balances.get(account.id) %}
-                        <div class="bubble bubble-md">
-                            <div class="acc-name">{{ account.account_name or account.account_type }}</div>
-                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
-                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                            {% if b and b.cash_balance %}
-                                <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                
-                <div style="position: absolute; bottom: 0; width: 100%; text-align: center;">
-                    <div class="summary-box" style="display: inline-block; background: #333;">Non-Retirement Total: <strong>${{ "{:,.2f}".format(totals.non_retirement) }}</strong></div>
-                </div>
-            </div>
-
-            <!-- Center: Trust -->
-            <div class="center-trust">
+        <div class="center-trust-overlay">
+            <div class="trust-inner">
+                <div class="acc-name">Client 1 and Client 2<br>Family Trust</div>
                 {% if trust_value %}
-                    <div class="bubble bubble-lg">
-                        <div class="acc-name">Trust</div>
-                        <div class="acc-val">${{ "{:,.2f}".format(trust_value.zillow_value) }}</div>
-                        <div class="acc-date">a/o {{ trust_value.as_of_date.strftime('%m/%d/%Y') }}</div>
-                    </div>
+                    <div class="acc-val" style="font-size: 13px;">${{ "{:,.2f}".format(trust_value.zillow_value) }}</div>
+                    <div class="acc-date">a/o {{ trust_value.as_of_date.strftime('%m/%d/%Y') }}</div>
+                {% else %}
+                    <div class="acc-val" style="font-size: 13px;">\$0.00</div>
                 {% endif %}
             </div>
+        </div>
 
-            <!-- Liabilities -->
-            <div class="liabilities-box">
-                <h4>Liabilities</h4>
+        <div class="bottom-center-overlay">
+            <div class="liabilities-list">
+                <div class="liab-header">Liabilities:</div>
                 {% for liability in household.liabilities %}
                     {% set lv = liability_values.get(liability.id) %}
                     <div class="liab-row">
-                        <span>{{ liability.loan_type }}</span>
-                        <span>${{ "{:,.2f}".format(lv.current_balance if lv else 0) }}</span>
+                        <div class="liab-left">{{ liability.loan_type }}</div>
+                        <div class="liab-right">${{ "{:,.2f}".format(lv.current_balance if lv else 0) }}</div>
                     </div>
                 {% endfor %}
-                <div class="liab-row" style="border-top: 1px solid #ccc; margin-top: 5px; font-weight: bold;">
-                    <span>Total</span>
-                    <span>${{ "{:,.2f}".format(totals.liabilities) }}</span>
-                </div>
+            </div>
+            <div class="dark-summary-box" style="margin-bottom: -1px; width:100%; box-sizing:border-box;">
+                NON RETIREMENT TOTAL<br>
+                <span style="font-size:13px;">${{ "{:,.2f}".format(totals.non_retirement|default(0)) }}</span>
             </div>
         </div>
-    </div>
+
+        <div class="disclaimer-red">* Indicates we do not have up to date information</div>
+
+        <div class="quadrant quad-tl">
+            <div class="section-label">RETIREMENT</div>
+            <div class="dark-summary-box">
+                Client 1 Retirement Only<br>
+                <span style="font-size:13px;">${{ "{:,.2f}".format(totals.retirement_client1|default(0)) }}</span>
+            </div>
+            
+            {% for person in individuals %}
+                {% if person.designation == 'client1' %}
+                <div class="profile-oval">
+                    <div class="profile-inner">
+                        <div class="p-title">Client 1</div>
+                        <div>{{ person.full_name }}</div>
+                        <div>Age: {{ person.age if person.age else 'N/A' }} | DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else '' }}</div>
+                        <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="bubbles-wrap">
+                {% for person in individuals %}
+                    {% if person.designation == 'client1' %}
+                        {% for account in person.accounts %}
+                            {% if account.category == 'retirement' %}
+                                {% set b = balances.get(account.id) %}
+                                <div class="bubble-container">
+                                    <div class="bubble">
+                                        <div class="bubble-inner">
+                                            <div class="acc-name">ACCT #<br>{{ account.account_name or account.account_type }}</div>
+                                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                                        </div>
+                                    </div>
+                                    {% if b and b.cash_balance %}
+                                        <div class="cash-bubble"><div class="cash-inner">${{ "{:,.0f}".format(b.cash_balance) }}<br>Cash</div></div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="quadrant quad-tr">
+            <div class="section-label">RETIREMENT</div>
+            
+            {% for person in individuals %}
+                {% if person.designation == 'client2' %}
+                <div class="profile-oval">
+                    <div class="profile-inner">
+                        <div class="p-title">Client 2</div>
+                        <div>{{ person.full_name }}</div>
+                        <div>Age: {{ person.age if person.age else 'N/A' }} | DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else '' }}</div>
+                        <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="dark-summary-box">
+                Client 2 Retirement Only<br>
+                <span style="font-size:13px;">${{ "{:,.2f}".format(totals.retirement_client2|default(0)) }}</span>
+            </div>
+
+            <div class="bubbles-wrap">
+                {% for person in individuals %}
+                    {% if person.designation == 'client2' %}
+                        {% for account in person.accounts %}
+                            {% if account.category == 'retirement' %}
+                                {% set b = balances.get(account.id) %}
+                                <div class="bubble-container">
+                                    <div class="bubble">
+                                        <div class="bubble-inner">
+                                            <div class="acc-name">ACCT #<br>{{ account.account_name or account.account_type }}</div>
+                                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                                        </div>
+                                    </div>
+                                    {% if b and b.cash_balance %}
+                                        <div class="cash-bubble"><div class="cash-inner">${{ "{:,.0f}".format(b.cash_balance) }}<br>Cash</div></div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        {% set ns = namespace(total=0) %}
+        {% for account in household.accounts %}
+            {% if account.category in ['non_retirement', 'private_reserve'] %}
+                {% set ns.total = ns.total + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="quadrant quad-bl">
+            <div class="section-label">NON RETIREMENT</div>
+            <div class="bubbles-wrap">
+                {% set ns_left = namespace(current=0) %}
+                {% for account in household.accounts %}
+                    {% if account.category in ['non_retirement', 'private_reserve'] %}
+                        {% if ns_left.current < (ns.total / 2) %}
+                            {% set b = balances.get(account.id) %}
+                            <div class="bubble-container">
+                                <div class="bubble">
+                                    <div class="bubble-inner">
+                                        <div class="acc-name">ACCT #<br>{{ account.account_name or account.account_type }}</div>
+                                        <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                                        <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                                    </div>
+                                </div>
+                                {% if b and b.cash_balance %}
+                                    <div class="cash-bubble"><div class="cash-inner">${{ "{:,.0f}".format(b.cash_balance) }}<br>Cash</div></div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% set ns_left.current = ns_left.current + 1 %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="quadrant quad-br">
+            <div class="section-label">NON RETIREMENT</div>
+            <div class="bubbles-wrap">
+                {% set ns_right = namespace(current=0) %}
+                {% for account in household.accounts %}
+                    {% if account.category in ['non_retirement', 'private_reserve'] %}
+                        {% if ns_right.current >= (ns.total / 2) %}
+                            {% set b = balances.get(account.id) %}
+                            <div class="bubble-container">
+                                <div class="bubble">
+                                    <div class="bubble-inner">
+                                        <div class="acc-name">ACCT #<br>{{ account.account_name or account.account_type }}</div>
+                                        <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                                        <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                                    </div>
+                                </div>
+                                {% if b and b.cash_balance %}
+                                    <div class="cash-bubble"><div class="cash-inner">${{ "{:,.0f}".format(b.cash_balance) }}<br>Cash</div></div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% set ns_right.current = ns_right.current + 1 %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+    </div> 
 </body>
 </html>
