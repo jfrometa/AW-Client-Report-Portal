@@ -6,6 +6,11 @@ from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
 
+def get_private_reserve_target(client):
+    if client.private_reserve_target_override is not None and client.private_reserve_target_override > 0:
+        return float(client.private_reserve_target_override)
+    return (6.0 * float(client.expense_budget or 0)) + float(client.deductibles_total or 0)
+
 @main_bp.route('/')
 def index():
     clients = Client.query.all()
@@ -20,7 +25,9 @@ def add_client():
         ssn = request.form.get('ssn_last_four')
         salary = float(request.form.get('monthly_salary', 0))
         budget = float(request.form.get('expense_budget', 0))
-        target = float(request.form.get('private_reserve_target', 0))
+        deductibles_total = float(request.form.get('deductibles_total', 0))
+        target_override_raw = request.form.get('private_reserve_target_override', '').strip()
+        target_override = float(target_override_raw) if target_override_raw else None
         
         dob = datetime.strptime(dob_str, '%Y-%m-%d').date() if dob_str else None
         
@@ -31,7 +38,8 @@ def add_client():
             ssn_last_four=ssn,
             monthly_salary=salary,
             expense_budget=budget,
-            private_reserve_target=target
+            deductibles_total=deductibles_total,
+            private_reserve_target_override=target_override
         )
         db.session.add(new_client)
         db.session.commit()
@@ -43,7 +51,8 @@ def add_client():
 @main_bp.route('/client/<int:client_id>')
 def client_detail(client_id):
     client = Client.query.get_or_404(client_id)
-    return render_template('client_detail.html', client=client)
+    private_reserve_target = get_private_reserve_target(client)
+    return render_template('client_detail.html', client=client, private_reserve_target=private_reserve_target)
 
 @main_bp.route('/client/<int:client_id>/account/add', methods=['POST'])
 def add_account(client_id):
@@ -74,7 +83,9 @@ def edit_client(client_id):
         client.ssn_last_four = request.form.get('ssn_last_four')
         client.monthly_salary = float(request.form.get('monthly_salary', 0))
         client.expense_budget = float(request.form.get('expense_budget', 0))
-        client.private_reserve_target = float(request.form.get('private_reserve_target', 0))
+        client.deductibles_total = float(request.form.get('deductibles_total', 0))
+        target_override_raw = request.form.get('private_reserve_target_override', '').strip()
+        client.private_reserve_target_override = float(target_override_raw) if target_override_raw else None
         
         db.session.commit()
         flash('Client updated successfully!', 'success')
@@ -159,22 +170,11 @@ def generate_tcc(report_id):
 
 @main_bp.route('/report/<int:report_id>/canva')
 def export_canva(report_id):
-    # Canva now supports PDF import for editing. 
-    # We will provide a specific PDF formatted for best compatibility with Canva.
     report = Report.query.get_or_404(report_id)
     client = report.client
     totals = calculate_report_totals(report)
     balances = {b.account_id: b for b in report.balances}
-    
-    # We'll combine both reports into one PDF for Canva import
-    sacs_html = render_template('pdf/sacs.html', report=report, client=client, totals=totals)
-    tcc_html = render_template('pdf/tcc.html', report=report, client=client, totals=totals, balances=balances)
-    
-    # Use WeasyPrint to combine
-    from weasyprint import HTML
-    import io
-    
-    # Simple approach: download the TCC which is more complex, as that's usually what needs "adjustments"
+
     pdf = generate_pdf('pdf/tcc.html', {'report': report, 'client': client, 'totals': totals, 'balances': balances})
     
     response = make_response(pdf)
@@ -186,10 +186,23 @@ def calculate_report_totals(report):
     client = report.client
     balances = {b.account_id: b for b in report.balances}
     
+    private_reserve_balance = 0.0
+    for account in client.accounts:
+        if account.account_type != 'private_reserve':
+            continue
+        b = balances.get(account.id)
+        if b:
+            private_reserve_balance += float(b.balance or 0)
+
+    private_reserve_target = get_private_reserve_target(client)
+
     totals = {
         'inflow': client.monthly_salary,
         'outflow': client.expense_budget,
         'excess': client.monthly_salary - client.expense_budget,
+        'private_reserve_balance': private_reserve_balance,
+        'private_reserve_target': private_reserve_target,
+        'private_reserve_target_met': private_reserve_balance >= private_reserve_target if private_reserve_target else False,
         'retirement_client1': 0.0,
         'retirement_client2': 0.0,
         'non_retirement': 0.0,

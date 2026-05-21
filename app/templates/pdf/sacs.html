@@ -159,7 +159,7 @@
         <!-- Private Reserve -->
         <div class="bubble bubble-reserve">
             <div class="label">Private Reserve</div>
-            <div class="value">${{ "{:,.0f}".format(totals.excess) }}</div>
+            <div class="value">${{ "{:,.0f}".format(totals.private_reserve_balance) }}</div>
         </div>
 
         <!-- Arrows (Simplified CSS representations) -->
@@ -204,7 +204,7 @@
             <h3>Private Reserve Targets</h3>
             <div class="data-row">
                 <span class="data-label">Target Savings Number</span>
-                <span class="data-value">${{ "{:,.2f}".format(client.private_reserve_target) }}</span>
+                <span class="data-value">${{ "{:,.2f}".format(totals.private_reserve_target) }}</span>
             </div>
             <div class="data-row">
                 <span class="data-label">Current Strategy</span>

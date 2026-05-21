@@ -120,11 +120,25 @@ AW-Client-Report-Portal/
 
 ## Usage
 
+## Demo Data & PRD Math Verification
+
+To populate a couple of demo clients (including the John Doe dataset aligned to the PRD math rules):
+
+```bash
+python scripts/seed_demo_data.py
+```
+
+To verify the PRD-required calculation outputs for John Doe:
+
+```bash
+python scripts/verify_prd_math.py
+```
+
 ### Adding a New Client
 
 1. Click **Add Client** on the dashboard
 2. Fill in personal information (name, DOB, SSN last 4)
-3. Enter financial baseline (monthly salary, expense budget, private reserve target)
+3. Enter financial baseline (monthly salary, expense budget, deductibles; optional target override)
 4. Click **Create Client**
 
 ### Managing Accounts

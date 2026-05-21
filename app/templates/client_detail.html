@@ -126,6 +126,14 @@
                         <span class="text-sm font-medium text-gray-900">Monthly Excess</span>
                         <span class="text-sm font-bold text-green-600">${{ "{:,.2f}".format(client.monthly_salary - client.expense_budget) }}</span>
                     </div>
+                    <div class="pt-2 border-t flex justify-between">
+                        <span class="text-sm font-medium text-gray-900">Private Reserve Target</span>
+                        <span class="text-sm font-semibold text-gray-900">${{ "{:,.2f}".format(private_reserve_target) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Deductibles</span>
+                        <span class="text-sm text-gray-700">${{ "{:,.2f}".format(client.deductibles_total or 0) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -147,6 +155,7 @@
                     <select name="account_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm">
                         <option value="retirement">Retirement</option>
                         <option value="non-retirement">Non-Retirement</option>
+                        <option value="private_reserve">Private Reserve (SACS)</option>
                         <option value="trust">Trust / Property</option>
                         <option value="liability">Liability</option>
                     </select>
