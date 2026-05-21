@@ -57,7 +57,11 @@ class Individual(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     accounts = db.relationship(
-        "Account", backref="individual", lazy=True, cascade="all, delete-orphan"
+        "Account",
+        backref="individual",
+        lazy=True,
+        cascade="all, delete-orphan",
+        foreign_keys="Account.individual_id",
     )
 
     @property
