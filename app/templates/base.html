@@ -13,7 +13,7 @@
         .text-primary { color: #003366; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex flex-col min-h-screen">
     <nav class="bg-primary text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -28,7 +28,7 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <main class="flex-grow max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -42,7 +42,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-white border-t mt-auto py-8">
+    <footer class="bg-white border-t py-8">
         <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
             &copy; 2024 EF Financial Planning. Internal Use Only.
         </div>

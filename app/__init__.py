@@ -10,7 +10,8 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
     
-    database_path = os.getenv('RAILWAY_DATABASE_PATH', '/app/instance/portal.db')
+    basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    database_path = os.getenv('RAILWAY_DATABASE_PATH', os.path.join(basedir, 'instance', 'portal.db'))
     db_dir = os.path.dirname(database_path)
     if db_dir and not os.path.exists(db_dir):
         os.makedirs(db_dir, exist_ok=True)
