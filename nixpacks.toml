@@ -1,2 +1,7 @@
-[phases.setup]
-nixPkgs = ["...", "pango", "cairo", "libxml2", "libxslt", "libffi", "glib"]
+providers = []
+
+[python]
+version = "3.12"
+
+[nix]
+packages = ["pkg-config", "pango", "cairo", "gdk-pixbuf", "libxml2", "libxslt", "libffi", "glib", "gobject-introspection", "shared-mime-info"]
