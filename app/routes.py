@@ -7,6 +7,16 @@ import traceback
 
 main_bp = Blueprint('main', __name__)
 
+def parse_float(value, default=0.0):
+    if value is None:
+        return float(default)
+    if isinstance(value, (int, float)):
+        return float(value)
+    value = str(value).strip()
+    if value == "":
+        return float(default)
+    return float(value)
+
 def get_private_reserve_target(client):
     if client.private_reserve_target_override is not None and client.private_reserve_target_override > 0:
         return float(client.private_reserve_target_override)
@@ -107,8 +117,8 @@ def new_report(client_id):
         
         # Save balances
         for account in client.accounts:
-            balance_val = float(request.form.get(f'balance_{account.id}', 0))
-            cash_balance_val = float(request.form.get(f'cash_balance_{account.id}', 0))
+            balance_val = parse_float(request.form.get(f'balance_{account.id}'), 0)
+            cash_balance_val = parse_float(request.form.get(f'cash_balance_{account.id}'), 0)
             
             balance = Balance(
                 report_id=report.id,
