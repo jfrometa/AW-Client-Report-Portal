@@ -112,6 +112,11 @@ class Report(db.Model):
     status = db.Column(db.String(20), default="draft")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    snapshot_monthly_salary = db.Column(db.Float, default=0.0)
+    snapshot_expense_budget = db.Column(db.Float, default=0.0)
+    snapshot_deductibles_total = db.Column(db.Float, default=0.0)
+    snapshot_private_reserve_target = db.Column(db.Float, default=0.0)
+
     balance_entries = db.relationship(
         "BalanceEntry", backref="report", lazy=True, cascade="all, delete-orphan"
     )

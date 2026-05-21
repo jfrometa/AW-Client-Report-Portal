@@ -265,7 +265,14 @@ def new_report(household_id):
     if request.method == 'POST':
         report_date = parse_date(request.form.get("report_date")) or datetime.utcnow().date()
 
-        report = Report(household_id=household_id, report_date=report_date)
+        report = Report(
+            household_id=household_id,
+            report_date=report_date,
+            snapshot_monthly_salary=household.monthly_salary or 0.0,
+            snapshot_expense_budget=household.expense_budget or 0.0,
+            snapshot_deductibles_total=household.deductibles_total or 0.0,
+            snapshot_private_reserve_target=get_private_reserve_target(household),
+        )
         db.session.add(report)
         db.session.flush()
 
@@ -478,12 +485,12 @@ def calculate_report_totals(report):
     for lv in report.liability_values:
         liabilities_total += float(lv.current_balance or 0)
 
-    private_reserve_target = get_private_reserve_target(household)
+    private_reserve_target = report.snapshot_private_reserve_target
 
     totals = {
-        "inflow": float(household.monthly_salary or 0),
-        "outflow": float(household.expense_budget or 0),
-        "excess": float(household.monthly_salary or 0) - float(household.expense_budget or 0),
+        "inflow": float(report.snapshot_monthly_salary or 0),
+        "outflow": float(report.snapshot_expense_budget or 0),
+        "excess": float(report.snapshot_monthly_salary or 0) - float(report.snapshot_expense_budget or 0),
         "private_reserve_balance": private_reserve_balance,
         "private_reserve_target": private_reserve_target,
         "private_reserve_target_met": private_reserve_balance >= private_reserve_target
