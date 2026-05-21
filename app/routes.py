@@ -214,6 +214,42 @@ def add_liability(household_id):
     db.session.commit()
     return redirect(url_for("main.household_detail", household_id=household_id))
 
+@main_bp.route("/account/<int:account_id>/delete", methods=["POST"])
+def delete_account(account_id):
+    account = Account.query.get_or_404(account_id)
+    household_id = account.household_id or account.individual.household_id
+    db.session.delete(account)
+    db.session.commit()
+    flash("Account deleted successfully!", "success")
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
+@main_bp.route("/household/<int:household_id>/trust/delete", methods=["POST"])
+def delete_trust(household_id):
+    trust_asset = TrustAsset.query.filter_by(household_id=household_id).first()
+    if trust_asset:
+        db.session.delete(trust_asset)
+        db.session.commit()
+        flash("Trust deleted successfully!", "success")
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
+@main_bp.route("/liability/<int:liability_id>/delete", methods=["POST"])
+def delete_liability(liability_id):
+    liability = Liability.query.get_or_404(liability_id)
+    household_id = liability.household_id
+    db.session.delete(liability)
+    db.session.commit()
+    flash("Liability deleted successfully!", "success")
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
+@main_bp.route("/report/<int:report_id>/delete", methods=["POST"])
+def delete_report(report_id):
+    report = Report.query.get_or_404(report_id)
+    household_id = report.household_id
+    db.session.delete(report)
+    db.session.commit()
+    flash("Report deleted successfully!", "success")
+    return redirect(url_for("main.household_detail", household_id=household_id))
+
 @main_bp.route("/household/<int:household_id>/report/new", methods=["GET", "POST"])
 def new_report(household_id):
     household = Household.query.get_or_404(household_id)

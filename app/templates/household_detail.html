@@ -71,6 +71,7 @@
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last 4</th>
+                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -82,6 +83,9 @@
                                                 Household{% if account.attributed_individual %} ({{ account.attributed_individual.full_name }}){% endif %}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">****{{ account.account_number_last_four }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                                <button onclick="openDeleteModal('account', {{ account.id }})" class="text-red-600 hover:text-red-900 font-medium">Delete</button>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                         {% for person in individuals %}
@@ -91,6 +95,9 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{{ account.category.replace('_',' ') }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ person.full_name }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">****{{ account.account_number_last_four }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                                    <button onclick="openDeleteModal('account', {{ account.id }})" class="text-red-600 hover:text-red-900 font-medium">Delete</button>
+                                                </td>
                                             </tr>
                                             {% endfor %}
                                         {% endfor %}
@@ -110,6 +117,16 @@
                     <h3 class="text-lg leading-6 font-medium text-gray-900">Trust</h3>
                 </div>
                 <div class="px-4 py-5 sm:p-6 space-y-4">
+                    {% if trust_asset %}
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ trust_asset.property_address }}</p>
+                            </div>
+                            <button onclick="openDeleteModal('trust', {{ household.id }})" class="text-red-600 hover:text-red-900 font-medium">Delete</button>
+                        </div>
+                    </div>
+                    {% endif %}
                     <form action="{{ url_for('main.set_trust', household_id=household.id) }}" method="POST" class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Property Address</label>
@@ -148,6 +165,7 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -155,6 +173,9 @@
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-gray-900">{{ l.loan_type }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-600">{{ "{:,.2f}".format(l.interest_rate or 0) }}%</td>
+                                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                                        <button onclick="openDeleteModal('liability', {{ l.id }})" class="text-red-600 hover:text-red-900 font-medium">Delete</button>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -179,8 +200,9 @@
                                 <p class="text-sm font-medium text-gray-900">Quarterly Report - {{ report.report_date.strftime('%B %Y') }}</p>
                                 <p class="text-xs text-gray-500">Generated on {{ report.report_date.strftime('%m/%d/%Y') }}</p>
                             </div>
-                            <div class="flex space-x-2">
+                            <div class="flex space-x-4 items-center">
                                 <a href="{{ url_for('main.report_detail', report_id=report.id) }}" class="text-sm text-primary hover:underline">View Details</a>
+                                <button onclick="openDeleteModal('report', {{ report.id }})" class="text-sm text-red-600 hover:text-red-900 font-medium">Delete</button>
                             </div>
                         </li>
                         {% endfor %}
@@ -293,6 +315,45 @@
         </form>
     </div>
 </div>
+
+<div id="delete-confirmation-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div class="flex items-center mb-4">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-lg font-medium text-gray-900">Confirm Deletion</h3>
+                <div class="mt-2">
+                    <p class="text-sm text-gray-500">This action cannot be reverted.</p>
+                </div>
+            </div>
+        </div>
+        <form id="delete-form" method="POST" class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="document.getElementById('delete-confirmation-modal').classList.add('hidden')" class="text-sm font-medium text-gray-700 hover:underline">Cancel</button>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">Delete</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDeleteModal(type, id) {
+    let url = '';
+    if (type === 'account') {
+        url = '{{ url_for("main.delete_account", account_id=0) }}'.replace('0', id);
+    } else if (type === 'trust') {
+        url = '{{ url_for("main.delete_trust", household_id=0) }}'.replace('0', id);
+    } else if (type === 'liability') {
+        url = '{{ url_for("main.delete_liability", liability_id=0) }}'.replace('0', id);
+    } else if (type === 'report') {
+        url = '{{ url_for("main.delete_report", report_id=0) }}'.replace('0', id);
+    }
+    document.getElementById('delete-form').action = url;
+    document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+}
+</script>
 
 {% endblock %}
 
