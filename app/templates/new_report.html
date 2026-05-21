@@ -56,6 +56,7 @@
                                                 <span class="text-gray-500 sm:text-xs">$</span>
                                             </div>
                                             <input type="number" step="0.01" name="balance_{{ account.id }}" id="input_{{ account.id }}" required
+                                                   value="{% if account.id in last_account_values %}{{ last_account_values[account.id].balance }}{% endif %}"
                                                    class="focus:ring-primary focus:border-primary block w-32 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
                                                    placeholder="0.00">
                                         </div>
@@ -69,6 +70,7 @@
                                                 <span class="text-gray-500 sm:text-xs">$</span>
                                             </div>
                                             <input type="number" step="0.01" name="cash_balance_{{ account.id }}" id="cash_input_{{ account.id }}"
+                                                   value="{% if account.id in last_account_values %}{{ last_account_values[account.id].cash }}{% endif %}"
                                                    class="focus:ring-primary focus:border-primary block w-32 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
                                                    placeholder="0.00">
                                         </div>
@@ -105,6 +107,7 @@
                                         <span class="text-gray-500 sm:text-xs">$</span>
                                     </div>
                                     <input type="number" step="0.01" name="trust_zillow_value" id="trust_zillow_value" required
+                                           value="{{ last_trust_value if last_trust_value is not none else '' }}"
                                            class="focus:ring-primary focus:border-primary block w-48 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
                                            placeholder="0.00">
                                 </div>
@@ -139,6 +142,7 @@
                                                 <span class="text-gray-500 sm:text-xs">$</span>
                                             </div>
                                             <input type="number" step="0.01" name="liability_balance_{{ l.id }}" id="liability_balance_{{ l.id }}" required
+                                                   value="{% if l.id in last_liability_values %}{{ last_liability_values[l.id] }}{% endif %}"
                                                    class="focus:ring-primary focus:border-primary block w-40 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
                                                    placeholder="0.00">
                                         </div>
