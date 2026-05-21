@@ -3,27 +3,36 @@
 {% block content %}
 <div class="flex justify-between items-end mb-8">
     <div>
-        <h1 class="text-4xl font-bold text-gray-900">Client Dashboard</h1>
-        <p class="text-gray-600 mt-2">Manage your high-net-worth client reports.</p>
+        <h1 class="text-4xl font-bold text-gray-900">Household Dashboard</h1>
+        <p class="text-gray-600 mt-2">Manage households, quarterly data entry, and report exports.</p>
     </div>
 </div>
 
 <div class="bg-white shadow overflow-hidden sm:rounded-md">
     <ul class="divide-y divide-gray-200">
-        {% for client in clients %}
+        {% for household in households %}
         <li>
-            <a href="{{ url_for('main.client_detail', client_id=client.id) }}" class="block hover:bg-gray-50 transition">
+            <a href="{{ url_for('main.household_detail', household_id=household.id) }}" class="block hover:bg-gray-50 transition">
                 <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
                     <div class="flex flex-col">
-                        <p class="text-lg font-semibold text-primary truncate">{{ client.full_name }}</p>
-                        <p class="text-sm text-gray-500">SSN: ***-**-{{ client.ssn_last_four }}</p>
+                        <p class="text-lg font-semibold text-primary truncate">{{ household.display_name }}</p>
+                        <p class="text-sm text-gray-500">
+                            {% set people = household.individuals | sort(attribute='designation') %}
+                            {% if people|length == 0 %}
+                                No individuals added
+                            {% elif people|length == 1 %}
+                                {{ people[0].full_name }}
+                            {% else %}
+                                {{ people[0].full_name }} &amp; {{ people[1].full_name }}
+                            {% endif %}
+                        </p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="text-right mr-8">
                             <p class="text-xs text-gray-400 uppercase tracking-wider">Last Report</p>
                             <p class="text-sm text-gray-700">
-                                {% if client.reports %}
-                                    {{ client.reports[-1].report_date.strftime('%b %d, %Y') }}
+                                {% if household.reports %}
+                                    {{ household.reports[-1].report_date.strftime('%b %d, %Y') }}
                                 {% else %}
                                     No reports yet
                                 {% endif %}
@@ -39,9 +48,9 @@
         </li>
         {% else %}
         <li class="px-4 py-12 text-center">
-            <p class="text-gray-500">No clients found. Start by adding your first client.</p>
-            <a href="{{ url_for('main.add_client') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-800">
-                Add Client
+            <p class="text-gray-500">No households found. Start by adding your first household.</p>
+            <a href="{{ url_for('main.add_household') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-800">
+                Add Household
             </a>
         </li>
         {% endfor %}

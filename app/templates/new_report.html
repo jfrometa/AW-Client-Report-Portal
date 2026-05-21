@@ -6,7 +6,7 @@
         <ol class="flex items-center space-x-2">
             <li><a href="{{ url_for('main.index') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
             <li><svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></li>
-            <li><a href="{{ url_for('main.client_detail', client_id=client.id) }}" class="text-gray-500 hover:text-gray-700">{{ client.full_name }}</a></li>
+            <li><a href="{{ url_for('main.household_detail', household_id=household.id) }}" class="text-gray-500 hover:text-gray-700">{{ household.display_name }}</a></li>
             <li><svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></li>
             <li class="text-gray-900 font-medium">New Quarterly Report</li>
         </ol>
@@ -17,7 +17,7 @@
         <p class="text-gray-600 mt-2">Enter balances as of the report date. Previous values are shown for reference.</p>
     </div>
 
-    <form action="{{ url_for('main.new_report', client_id=client.id) }}" method="POST" class="space-y-8">
+    <form action="{{ url_for('main.new_report', household_id=household.id) }}" method="POST" class="space-y-8">
         <div class="bg-white shadow sm:rounded-lg p-6">
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
@@ -27,70 +27,140 @@
             </div>
         </div>
 
-        <!-- SACS Data Section -->
         <div class="bg-white shadow sm:rounded-lg overflow-hidden">
             <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">SACS & TCC Balances</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Quarterly Balances</h3>
             </div>
             <div class="p-6 space-y-8">
-                {% set categories = [('retirement', 'Retirement Accounts'), ('non-retirement', 'Non-Retirement Accounts'), ('private_reserve', 'Private Reserve (SACS)'), ('trust', 'Trust & Properties'), ('liability', 'Liabilities')] %}
-                
-                {% for cat_id, cat_name in categories %}
-                <section>
-                    <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">{{ cat_name }}</h4>
-                    <div class="space-y-4">
-                        {% for account in client.accounts if account.account_type == cat_id %}
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 p-4 border rounded-lg hover:border-primary transition">
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900">{{ account.account_name }}</p>
-                                <p class="text-xs text-gray-500 capitalize">{{ account.owner }} • ****{{ account.account_number_last_four }}</p>
-                            </div>
-                            
-                            <div class="mt-4 sm:mt-0 flex space-x-4 items-end">
-                                <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Current Balance</label>
-                                    <div class="relative rounded-md shadow-sm">
-                                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 sm:text-xs">$</span>
-                                        </div>
-                                        <input type="number" step="0.01" name="balance_{{ account.id }}" id="input_{{ account.id }}" 
-                                               class="focus:ring-primary focus:border-primary block w-32 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
-                                               placeholder="0.00">
-                                    </div>
+                {% set sections = [('retirement', 'Retirement Accounts'), ('non_retirement', 'Non-Retirement Accounts'), ('private_reserve', 'Private Reserve (SACS)')] %}
+                {% for key, label in sections %}
+                    <section>
+                        <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">{{ label }}</h4>
+                        <div class="space-y-4">
+                            {% for account in accounts if account.category == key %}
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 p-4 border rounded-lg hover:border-primary transition">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ account.account_name }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ account.institution_name if account.institution_name else '—' }}
+                                        • {{ account.account_type }}
+                                        • {% if account.individual %}{{ account.individual.full_name }}{% else %}Household{% endif %}
+                                        • ****{{ account.account_number_last_four }}
+                                    </p>
                                 </div>
-                                
-                                {% if account.account_type == 'retirement' or account.account_type == 'non-retirement' %}
-                                <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Cash Portion</label>
-                                    <div class="relative rounded-md shadow-sm">
-                                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 sm:text-xs">$</span>
+                                <div class="mt-4 sm:mt-0 flex space-x-4 items-end">
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Current Balance</label>
+                                        <div class="relative rounded-md shadow-sm">
+                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-xs">$</span>
+                                            </div>
+                                            <input type="number" step="0.01" name="balance_{{ account.id }}" id="input_{{ account.id }}"
+                                                   class="focus:ring-primary focus:border-primary block w-32 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
+                                                   placeholder="0.00">
                                         </div>
-                                        <input type="number" step="0.01" name="cash_balance_{{ account.id }}" id="cash_input_{{ account.id }}"
-                                               class="focus:ring-primary focus:border-primary block w-32 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
-                                               placeholder="0.00">
                                     </div>
-                                </div>
-                                {% endif %}
 
-                                {% if account.id in last_balances %}
-                                <button type="button" 
-                                        onclick="document.getElementById('input_{{ account.id }}').value = '{{ last_balances[account.id].balance }}'; {% if account.id in last_balances and last_balances[account.id].cash %}document.getElementById('cash_input_{{ account.id }}').value = '{{ last_balances[account.id].cash }}';{% endif %}"
-                                        class="text-xs text-primary hover:underline pb-2">
-                                    Use Last: ${{ "{:,.0f}".format(last_balances[account.id].balance) }}
-                                </button>
-                                {% endif %}
+                                    {% if key in ['retirement','non_retirement'] %}
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Cash Portion</label>
+                                        <div class="relative rounded-md shadow-sm">
+                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-xs">$</span>
+                                            </div>
+                                            <input type="number" step="0.01" name="cash_balance_{{ account.id }}" id="cash_input_{{ account.id }}"
+                                                   class="focus:ring-primary focus:border-primary block w-32 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
+                                                   placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if account.id in last_account_values %}
+                                    <button type="button"
+                                            onclick="document.getElementById('input_{{ account.id }}').value = '{{ last_account_values[account.id].balance }}'; document.getElementById('cash_input_{{ account.id }}') && (document.getElementById('cash_input_{{ account.id }}').value = '{{ last_account_values[account.id].cash }}');"
+                                            class="text-xs text-primary hover:underline pb-2">
+                                        Use Last: ${{ "{:,.0f}".format(last_account_values[account.id].balance) }}
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </div>
+                            {% endfor %}
+                            {% if (accounts | selectattr('category','equalto',key) | list | length) == 0 %}
+                                <p class="text-sm text-gray-500">No accounts in this section.</p>
+                            {% endif %}
                         </div>
-                        {% endfor %}
-                    </div>
-                </section>
+                    </section>
                 {% endfor %}
+
+                <section>
+                    <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Trust (Zillow)</h4>
+                    {% if trust_asset %}
+                    <div class="p-4 border rounded-lg space-y-3">
+                        <div class="text-sm font-medium text-gray-900">{{ trust_asset.property_address }}</div>
+                        <div class="flex items-end space-x-4">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Zillow Zestimate Value</label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-xs">$</span>
+                                    </div>
+                                    <input type="number" step="0.01" name="trust_zillow_value" id="trust_zillow_value"
+                                           class="focus:ring-primary focus:border-primary block w-48 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+                            {% if last_trust_value is not none %}
+                            <button type="button" onclick="document.getElementById('trust_zillow_value').value = '{{ last_trust_value }}';" class="text-xs text-primary hover:underline pb-2">
+                                Use Last: ${{ "{:,.0f}".format(last_trust_value) }}
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-gray-500">No trust asset configured on the household.</p>
+                    {% endif %}
+                </section>
+
+                <section>
+                    <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Liabilities</h4>
+                    {% if liabilities %}
+                        <div class="space-y-4">
+                            {% for l in liabilities %}
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 p-4 border rounded-lg">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ l.loan_type }}</p>
+                                    <p class="text-xs text-gray-500">{{ "{:,.2f}".format(l.interest_rate or 0) }}%</p>
+                                </div>
+                                <div class="mt-4 sm:mt-0 flex items-end space-x-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Current Balance</label>
+                                        <div class="relative rounded-md shadow-sm">
+                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-xs">$</span>
+                                            </div>
+                                            <input type="number" step="0.01" name="liability_balance_{{ l.id }}" id="liability_balance_{{ l.id }}"
+                                                   class="focus:ring-primary focus:border-primary block w-40 pl-6 sm:text-sm border-gray-300 rounded-md border p-1.5"
+                                                   placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    {% if l.id in last_liability_values %}
+                                    <button type="button" onclick="document.getElementById('liability_balance_{{ l.id }}').value = '{{ last_liability_values[l.id] }}';" class="text-xs text-primary hover:underline pb-2">
+                                        Use Last: ${{ "{:,.0f}".format(last_liability_values[l.id]) }}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">No liabilities configured on the household.</p>
+                    {% endif %}
+                </section>
             </div>
         </div>
 
         <div class="flex justify-end space-x-4 pb-12">
-            <a href="{{ url_for('main.client_detail', client_id=client.id) }}" class="bg-white py-2 px-6 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</a>
+            <a href="{{ url_for('main.household_detail', household_id=household.id) }}" class="bg-white py-2 px-6 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</a>
             <button type="submit" class="bg-primary py-2 px-10 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-800 transition">Save & Calculate</button>
         </div>
     </form>

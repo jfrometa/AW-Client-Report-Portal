@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{{ url_for('main.index') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
+            <li><svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></li>
+            <li class="text-gray-900 font-medium">{{ household.display_name }}</li>
+        </ol>
+    </nav>
+
+    <div class="lg:flex lg:items-center lg:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
+                {{ household.display_name }}
+            </h2>
+            <p class="mt-2 text-sm text-gray-500">
+                Household record with {% if individuals|length == 1 %}1 individual{% else %}{{ individuals|length }} individuals{% endif %}.
+            </p>
+        </div>
+        <div class="mt-5 flex lg:mt-0 lg:ml-4 space-x-3">
+            <a href="{{ url_for('main.edit_household', household_id=household.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Edit Household
+            </a>
+            <a href="{{ url_for('main.new_report', household_id=household.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-800">
+                Generate Report
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Individuals</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {% for person in individuals %}
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-semibold text-gray-900">{{ person.full_name }}</p>
+                                <span class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-800">{{ person.designation|upper }}</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 space-y-1">
+                                <div>DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else 'N/A' }}</div>
+                                <div>Age: {{ person.age if person.age is not none else 'N/A' }}</div>
+                                <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Accounts</h3>
+                    <button onclick="document.getElementById('add-account-modal').classList.remove('hidden')" class="text-sm text-primary font-medium hover:underline">+ Add Account</button>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    {% if household.accounts or individuals|selectattr('accounts') %}
+                    <div class="flex flex-col">
+                        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last 4</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        {% for account in household.accounts %}
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ account.account_name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{{ account.category.replace('_',' ') }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                Household{% if account.attributed_individual %} ({{ account.attributed_individual.full_name }}){% endif %}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">****{{ account.account_number_last_four }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% for person in individuals %}
+                                            {% for account in person.accounts %}
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ account.account_name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{{ account.category.replace('_',' ') }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ person.full_name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">****{{ account.account_number_last_four }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-gray-500 py-4">No accounts linked. Add accounts to start tracking balances.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Trust</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6 space-y-4">
+                    <form action="{{ url_for('main.set_trust', household_id=household.id) }}" method="POST" class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Property Address</label>
+                            <input type="text" name="property_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" value="{{ trust_asset.property_address if trust_asset else '' }}" placeholder="123 Main St, Atlanta, GA">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800">Save Trust</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Liabilities</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6 space-y-6">
+                    <form action="{{ url_for('main.add_liability', household_id=household.id) }}" method="POST" class="grid grid-cols-1 gap-4 sm:grid-cols-6 items-end">
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">Loan Type</label>
+                            <input type="text" name="loan_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" placeholder="Mortgage">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+                            <input type="number" step="0.01" name="interest_rate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" placeholder="4.50">
+                        </div>
+                        <div class="sm:col-span-1 flex justify-end">
+                            <button type="submit" class="bg-primary text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">Add</button>
+                        </div>
+                    </form>
+
+                    {% if household.liabilities %}
+                    <div class="border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for l in household.liabilities %}
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ l.loan_type }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-600">{{ "{:,.2f}".format(l.interest_rate or 0) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-gray-500 py-2">No liabilities added.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Report History</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    {% if household.reports %}
+                    <ul class="divide-y divide-gray-200">
+                        {% for report in household.reports|reverse %}
+                        <li class="py-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Quarterly Report - {{ report.report_date.strftime('%B %Y') }}</p>
+                                <p class="text-xs text-gray-500">Generated on {{ report.report_date.strftime('%m/%d/%Y') }}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="{{ url_for('main.report_detail', report_id=report.id) }}" class="text-sm text-primary hover:underline">View Details</a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-center text-gray-500 py-4">No reports generated yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white shadow sm:rounded-lg p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Baseline Cashflow</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Monthly Inflow</span>
+                        <span class="text-sm font-semibold text-gray-900">${{ "{:,.2f}".format(household.monthly_salary or 0) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Monthly Outflow</span>
+                        <span class="text-sm font-semibold text-gray-900">${{ "{:,.2f}".format(household.expense_budget or 0) }}</span>
+                    </div>
+                    <div class="pt-2 border-t flex justify-between">
+                        <span class="text-sm font-medium text-gray-900">Monthly Excess</span>
+                        <span class="text-sm font-bold text-green-600">${{ "{:,.2f}".format((household.monthly_salary or 0) - (household.expense_budget or 0)) }}</span>
+                    </div>
+                    <div class="pt-2 border-t flex justify-between">
+                        <span class="text-sm font-medium text-gray-900">Private Reserve Target</span>
+                        <span class="text-sm font-semibold text-gray-900">${{ "{:,.2f}".format(private_reserve_target) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Deductibles</span>
+                        <span class="text-sm text-gray-700">${{ "{:,.2f}".format(household.deductibles_total or 0) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add-account-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Account</h3>
+        <form action="{{ url_for('main.add_account', household_id=household.id) }}" method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm">
+                        <option value="retirement">Retirement</option>
+                        <option value="non_retirement">Non-Retirement</option>
+                        <option value="private_reserve">Private Reserve</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Scope</label>
+                    <select name="scope" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm">
+                        <option value="household">Household</option>
+                        <option value="individual">Individual</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Owner (if Individual)</label>
+                    <select name="individual_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm">
+                        <option value="">—</option>
+                        {% for person in individuals %}
+                        <option value="{{ person.id }}">{{ person.full_name }} ({{ person.designation|upper }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Attributed To (Optional)</label>
+                    <select name="attributed_individual_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm">
+                        <option value="">—</option>
+                        {% for person in individuals %}
+                        <option value="{{ person.id }}">{{ person.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Institution</label>
+                <input type="text" name="institution_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" placeholder="Schwab">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Account Name</label>
+                <input type="text" name="account_name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" placeholder="Schwab Joint Brokerage">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Account Type</label>
+                    <input type="text" name="account_type" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" placeholder="Brokerage">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Last 4 Digits</label>
+                    <input type="text" name="account_number_last_four" maxlength="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 text-sm" placeholder="9901">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="document.getElementById('add-account-modal').classList.add('hidden')" class="text-sm font-medium text-gray-700 hover:underline">Cancel</button>
+                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800">Add Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
