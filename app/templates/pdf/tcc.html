@@ -156,7 +156,7 @@
     <div class="container">
         <div class="header">
             <div class="client-info">
-                <div><strong>NAME:</strong> {{ client.full_name }}</div>
+                <div><strong>NAME:</strong> {{ household.display_name }}</div>
                 <div><strong>DATE:</strong> {{ report.report_date.strftime('%B %d, %Y') }}</div>
             </div>
             <div class="grand-total-box">
@@ -174,45 +174,71 @@
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <div class="summary-box">Client 1 Retirement Only<br><strong>${{ "{:,.2f}".format(totals.retirement_client1) }}</strong></div>
                     <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-                        {% for account in client.accounts if account.account_type == 'retirement' and account.owner == 'client1' %}
-                        {% set b = balances.get(account.id) %}
-                        <div class="bubble bubble-md">
-                            <div class="acc-name">{{ account.account_name }}</div>
-                            <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
-                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                            {% if b and b.cash_balance %}
-                            <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
+                        {% for person in individuals %}
+                            {% if person.designation == 'client1' %}
+                                {% for account in person.accounts %}
+                                    {% if account.category == 'retirement' %}
+                                        {% set b = balances.get(account.id) %}
+                                        <div class="bubble bubble-md">
+                                            <div class="acc-name">{{ account.account_name or account.account_type }}</div>
+                                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                                            {% if b and b.cash_balance %}
+                                                <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
                             {% endif %}
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
                 <!-- Profile Bubble -->
-                <div class="bubble bubble-lg bubble-green">
-                    <div style="font-size: 16px;">Client 1</div>
-                    <div>Age: {{ client.age if client.age else 'N/A' }}</div>
-                    <div>DOB: {{ client.dob.strftime('%m/%d/%Y') if client.dob else '' }}</div>
-                    <div>SSN: {{ client.ssn_last_four }}</div>
-                </div>
+                {% for person in individuals %}
+                    {% if person.designation == 'client1' %}
+                        <div class="bubble bubble-lg bubble-green">
+                            <div style="font-size: 16px;">Client 1</div>
+                            <div>{{ person.full_name }}</div>
+                            <div>Age: {{ person.age if person.age else 'N/A' }}</div>
+                            <div>DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else '' }}</div>
+                            <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
 
             <!-- Top Right: Client 2 Retirement -->
             <div class="retirement-section">
-                <div class="bubble bubble-lg bubble-green">
-                    <div style="font-size: 16px;">Client 2</div>
-                    <div>Age: N/A</div>
-                    <div>DOB: N/A</div>
-                </div>
+                {% for person in individuals %}
+                    {% if person.designation == 'client2' %}
+                        <div class="bubble bubble-lg bubble-green">
+                            <div style="font-size: 16px;">Client 2</div>
+                            <div>{{ person.full_name }}</div>
+                            <div>Age: {{ person.age if person.age else 'N/A' }}</div>
+                            <div>DOB: {{ person.dob.strftime('%m/%d/%Y') if person.dob else '' }}</div>
+                            <div>SSN: ***-**-{{ person.ssn_last_four if person.ssn_last_four else '----' }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <div class="summary-box">Client 2 Retirement Only<br><strong>${{ "{:,.2f}".format(totals.retirement_client2) }}</strong></div>
                     <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-                        {% for account in client.accounts if account.account_type == 'retirement' and account.owner == 'client2' %}
-                        {% set b = balances.get(account.id) %}
-                        <div class="bubble bubble-md">
-                            <div class="acc-name">{{ account.account_name }}</div>
-                            <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
-                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                        </div>
+                        {% for person in individuals %}
+                            {% if person.designation == 'client2' %}
+                                {% for account in person.accounts %}
+                                    {% if account.category == 'retirement' %}
+                                        {% set b = balances.get(account.id) %}
+                                        <div class="bubble bubble-md">
+                                            <div class="acc-name">{{ account.account_name or account.account_type }}</div>
+                                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                                            {% if b and b.cash_balance %}
+                                                <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
@@ -220,13 +246,18 @@
 
             <!-- Bottom: Non-Retirement -->
             <div class="non-retirement-section" style="grid-column: span 2;">
-                {% for account in client.accounts if account.account_type == 'non-retirement' %}
-                {% set b = balances.get(account.id) %}
-                <div class="bubble bubble-md">
-                    <div class="acc-name">{{ account.account_name }}</div>
-                    <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
-                    <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                </div>
+                {% for account in household.accounts %}
+                    {% if account.category == 'non_retirement' or account.category == 'private_reserve' %}
+                        {% set b = balances.get(account.id) %}
+                        <div class="bubble bubble-md">
+                            <div class="acc-name">{{ account.account_name or account.account_type }}</div>
+                            <div class="acc-val">${{ "{:,.2f}".format(b.total_balance if b else 0) }}</div>
+                            <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
+                            {% if b and b.cash_balance %}
+                                <div class="acc-cash">${{ "{:,.0f}".format(b.cash_balance) }} Cash</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 {% endfor %}
                 
                 <div style="position: absolute; bottom: 0; width: 100%; text-align: center;">
@@ -236,25 +267,24 @@
 
             <!-- Center: Trust -->
             <div class="center-trust">
-                {% for account in client.accounts if account.account_type == 'trust' %}
-                {% set b = balances.get(account.id) %}
-                <div class="bubble bubble-lg">
-                    <div class="acc-name">{{ account.account_name }}</div>
-                    <div class="acc-val">${{ "{:,.2f}".format(b.balance if b else 0) }}</div>
-                    <div class="acc-date">a/o {{ b.as_of_date.strftime('%m/%d/%Y') if b else '' }}</div>
-                </div>
-                {% endfor %}
+                {% if trust_value %}
+                    <div class="bubble bubble-lg">
+                        <div class="acc-name">Trust</div>
+                        <div class="acc-val">${{ "{:,.2f}".format(trust_value.zillow_value) }}</div>
+                        <div class="acc-date">a/o {{ trust_value.as_of_date.strftime('%m/%d/%Y') }}</div>
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Liabilities -->
             <div class="liabilities-box">
                 <h4>Liabilities</h4>
-                {% for account in client.accounts if account.account_type == 'liability' %}
-                {% set b = balances.get(account.id) %}
-                <div class="liab-row">
-                    <span>{{ account.account_name }}</span>
-                    <span>${{ "{:,.2f}".format(b.balance if b else 0) }}</span>
-                </div>
+                {% for liability in household.liabilities %}
+                    {% set lv = liability_values.get(liability.id) %}
+                    <div class="liab-row">
+                        <span>{{ liability.loan_type }}</span>
+                        <span>${{ "{:,.2f}".format(lv.current_balance if lv else 0) }}</span>
+                    </div>
                 {% endfor %}
                 <div class="liab-row" style="border-top: 1px solid #ccc; margin-top: 5px; font-weight: bold;">
                     <span>Total</span>

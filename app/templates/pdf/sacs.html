@@ -94,7 +94,7 @@
         <div class="header">
             <div class="header-dollar">$</div>
             <div class="header-title">Simple Automated Cashflow System (SACS)</div>
-            <div class="header-client">{{ client.full_name }}</div>
+            <div class="header-client">{{ household.display_name }}</div>
             <div class="money-stack">
                 <div class="bill back"></div>
                 <div class="bill front"></div>
@@ -103,8 +103,8 @@
 
         <div class="canvas">
             <div class="legend">
-                <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.inflow) }} <span class="muted">Client 1</span></div>
-                <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.outflow) }} <span class="muted">Client 2</span></div>
+                <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.inflow) }} <span class="muted">Monthly Inflow</span></div>
+                <div><span class="muted">$</span>{{ "{:,.0f}".format(totals.outflow) }} <span class="muted">Monthly Outflow</span></div>
             </div>
 
             <div class="green-arrow"></div>
