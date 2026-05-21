@@ -1,0 +1,48 @@
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# WeasyPrint / Cairo dependencies (large binaries)
+# These are installed by nixpacks on Railway
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Railway
+.railway/
+
+# Git
+.git/
