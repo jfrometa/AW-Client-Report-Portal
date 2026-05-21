@@ -11,6 +11,10 @@ RUN apt-get update && apt-get install -y \
     libgdk-pixbuf-xlib-2.0-dev \
     libxml2-dev \
     libxslt-dev \
+    fontconfig \
+    fonts-dejavu-core \
+    fonts-liberation \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

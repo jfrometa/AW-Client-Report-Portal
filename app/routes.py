@@ -3,6 +3,7 @@ from . import db
 from .models import Client, Account, Report, Balance
 from .utils import generate_pdf
 from datetime import datetime
+import traceback
 
 main_bp = Blueprint('main', __name__)
 
@@ -143,44 +144,50 @@ def report_detail(report_id):
 
 @main_bp.route('/report/<int:report_id>/sacs')
 def generate_sacs(report_id):
-    report = Report.query.get_or_404(report_id)
-    client = report.client
-    totals = calculate_report_totals(report)
-    
-    pdf = generate_pdf('pdf/sacs.html', {'report': report, 'client': client, 'totals': totals})
-    
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=SACS_{client.last_name}_{report.report_date.strftime("%Y%m%d")}.pdf'
-    return response
+    try:
+        report = Report.query.get_or_404(report_id)
+        client = report.client
+        totals = calculate_report_totals(report)
+        pdf = generate_pdf('pdf/sacs.html', {'report': report, 'client': client, 'totals': totals})
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'inline; filename=SACS_{client.last_name}_{report.report_date.strftime("%Y%m%d")}.pdf'
+        return response
+    except Exception:
+        traceback.print_exc()
+        return "SACS PDF generation failed. Check server logs for details.", 500
 
 @main_bp.route('/report/<int:report_id>/tcc')
 def generate_tcc(report_id):
-    report = Report.query.get_or_404(report_id)
-    client = report.client
-    totals = calculate_report_totals(report)
-    balances = {b.account_id: b for b in report.balances}
-    
-    pdf = generate_pdf('pdf/tcc.html', {'report': report, 'client': client, 'totals': totals, 'balances': balances})
-    
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=TCC_{client.last_name}_{report.report_date.strftime("%Y%m%d")}.pdf'
-    return response
+    try:
+        report = Report.query.get_or_404(report_id)
+        client = report.client
+        totals = calculate_report_totals(report)
+        balances = {b.account_id: b for b in report.balances}
+        pdf = generate_pdf('pdf/tcc.html', {'report': report, 'client': client, 'totals': totals, 'balances': balances})
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'inline; filename=TCC_{client.last_name}_{report.report_date.strftime("%Y%m%d")}.pdf'
+        return response
+    except Exception:
+        traceback.print_exc()
+        return "TCC PDF generation failed. Check server logs for details.", 500
 
 @main_bp.route('/report/<int:report_id>/canva')
 def export_canva(report_id):
-    report = Report.query.get_or_404(report_id)
-    client = report.client
-    totals = calculate_report_totals(report)
-    balances = {b.account_id: b for b in report.balances}
-
-    pdf = generate_pdf('pdf/tcc.html', {'report': report, 'client': client, 'totals': totals, 'balances': balances})
-    
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=CANVA_IMPORT_{client.last_name}.pdf'
-    return response
+    try:
+        report = Report.query.get_or_404(report_id)
+        client = report.client
+        totals = calculate_report_totals(report)
+        balances = {b.account_id: b for b in report.balances}
+        pdf = generate_pdf('pdf/tcc.html', {'report': report, 'client': client, 'totals': totals, 'balances': balances})
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=CANVA_IMPORT_{client.last_name}.pdf'
+        return response
+    except Exception:
+        traceback.print_exc()
+        return "Canva export failed. Check server logs for details.", 500
 
 def calculate_report_totals(report):
     client = report.client
